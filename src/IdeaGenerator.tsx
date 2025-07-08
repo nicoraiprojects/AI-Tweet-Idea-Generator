@@ -41,6 +41,10 @@ function IdeaGenerator() {
   const [isLoadingReferences, setIsLoadingReferences] = useState(false);
   const [selectedForGeneration, setSelectedForGeneration] = useState<ReferenceTweet[]>([]);
 
+  // Add state for subreddit and limit
+  const [fetchSubreddit, setFetchSubreddit] = useState('');
+  const [fetchLimit, setFetchLimit] = useState(5);
+
   // --- Functions (No changes here) ---
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -53,6 +57,7 @@ function IdeaGenerator() {
         body: JSON.stringify({
           category: selectedCategory,
           tone: selectedTone,
+          idea: finalIdea,
           reference_tweets: selectedForGeneration.map(t => t.Reference_Tweet)
         }),
       });
@@ -65,7 +70,35 @@ function IdeaGenerator() {
       setIsGenerating(false);
     }
   };
-  const fetchIdeas = async () => { setIsLoading(true); setSuggestedIdeas([]); try { const response = await fetch('https://fahisk.app.n8n.cloud/webhook/start', { method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify({}) }); const data = await response.json(); let foundIdeas: SuggestedIdea[] = []; if (Array.isArray(data)) foundIdeas = data; else if (data && Array.isArray(data.items)) foundIdeas = data.items; else if (data && data.generated_idea) foundIdeas = [data]; setSuggestedIdeas(foundIdeas); } catch (error) { console.error("Error fetching ideas:", error); alert("Failed to fetch ideas. Make sure your n8n workflow is active."); } finally { setIsLoading(false); } };
+  const fetchIdeas = async () => {
+    setIsLoading(true);
+    setSuggestedIdeas([]);
+    try {
+      const response = await fetch('https://fahisk.app.n8n.cloud/webhook/start', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        // MODIFIED: Send the new parameters from state
+        body: JSON.stringify({
+          subreddit: fetchSubreddit,
+          limit: fetchLimit
+        })
+      });
+      const data = await response.json();
+      let foundIdeas: any[] = [];
+      // This logic handles different possible n8n return structures
+      if (Array.isArray(data)) foundIdeas = data.map(item => item?.json ?? item);
+      else if (data && data.generated_idea) foundIdeas = [data];
+
+      // Assuming the Reddit node returns titles in a 'title' property
+      setSuggestedIdeas(foundIdeas.map(idea => ({ generated_idea: idea.title || idea.generated_idea })));
+
+    } catch (error) {
+      console.error("Error fetching ideas:", error);
+      alert("Failed to fetch ideas. Make sure your n8n workflow is active.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const handleCopyIdea = async (ideaText: string, index: number) => { try { await navigator.clipboard.writeText(ideaText); setCopiedIndex(index); setTimeout(() => setCopiedIndex(null), 1500); } catch { alert('Failed to copy!'); } };
   const fetchReferenceTweets = async () => { setIsLoadingReferences(true); try { const response = await fetch('https://fahisk.app.n8n.cloud/webhook/second', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ category: selectedCategory, tone: selectedTone }) }); const data = await response.json(); console.log("📦 Raw data from n8n:", data); if (Array.isArray(data)) { const flatTweets = data.map(item => { const raw = item?.json ?? item; return { row_number: raw.row_number, Reference_Tweet: raw["Reference Tweet"], Category: raw.Category, Tone_Style: raw.Tone }; }); setReferenceTweets(flatTweets); console.log("✅ Flattened reference tweets:", flatTweets); } else { console.warn("⚠️ Unexpected data:", data); setReferenceTweets([]); } } catch (error) { alert("Failed to fetch reference tweets."); console.error("Fetch error:", error); setReferenceTweets([]); } finally { setIsLoadingReferences(false); } };
   const handleAddOrUpdateTweet = async () => {
@@ -117,9 +150,39 @@ function IdeaGenerator() {
         <div className="generator-column">
           <div className="card">
             <h3>Suggested Ideas</h3>
+
+            {/* NEW UI CONTROLS */}
+            <div className="form-group-row" style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+              <div className="form-group" style={{ flex: 2 }}>
+                <label>Subreddit</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={fetchSubreddit}
+                  onChange={(e) => setFetchSubreddit(e.target.value)}
+                  placeholder="e.g., technology"
+                />
+              </div>
+              <div className="form-group" style={{ flex: 1 }}>
+                <label>How Many?</label>
+                <select
+                  className="form-input"
+                  value={fetchLimit}
+                  onChange={(e) => setFetchLimit(Number(e.target.value))}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={30}>30</option>
+                </select>
+              </div>
+            </div>
+
             <button onClick={fetchIdeas} disabled={isLoading} className="btn btn-secondary">
               {isLoading ? 'Fetching...' : 'Fetch New Ideas'}
             </button>
+
+            {/* ...existing code for ideas-list... */}
             <div className="ideas-list">
               {suggestedIdeas.length > 0 ? (
                 suggestedIdeas.map((idea, index) => (
