@@ -62,6 +62,7 @@ body {
 .generator-column {
   flex: 1;
   min-width: 1200px;
+  margin-top: 70px;
   /* Ensure results cards appear below the form in the same column */
   display: flex;
   flex-direction: column;
@@ -357,3 +358,99 @@ select.form-input:focus {
   margin-bottom: 1rem;
 }
 .variation-card strong { color: var(--text-primary); }
+
+/* ReferenceTweetTable.css */
+
+.table-container {
+  overflow-x: auto; /* Adds horizontal scroll for small screens */
+  margin: 20px 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.reference-tweet-table {
+  width: 100%;
+  border-collapse: collapse; /* Ensures no double borders */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.reference-tweet-table th,
+.reference-tweet-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd; /* Light border for separation */
+}
+
+.reference-tweet-table th {
+  background-color: #4CAF50; /* A pleasant green header */
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Zebra striping for readability */
+.reference-tweet-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Hover effect for rows */
+.reference-tweet-table tbody tr:hover {
+  background-color: #f1f1f1;
+  cursor: pointer;
+}
+
+.reference-tweet-table tbody tr:last-child td {
+  border-bottom: none; /* No border for the last row */
+}
+
+.no-data-message {
+  text-align: center;
+  font-style: italic;
+  color: #777;
+  padding: 20px;
+}
+
+/* Responsive adjustments for smaller screens */
+@media screen and (max-width: 600px) {
+  .reference-tweet-table thead {
+    display: none; /* Hide table headers on small screens */
+  }
+
+  .reference-tweet-table,
+  .reference-tweet-table tbody,
+  .reference-tweet-table tr,
+  .reference-tweet-table td {
+    display: block; /* Make table elements behave like block elements */
+    width: 100%;
+  }
+
+  .reference-tweet-table tr {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .reference-tweet-table td {
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+  }
+
+  .reference-tweet-table td::before {
+    content: attr(data-label); /* Use data-label for pseudo-element content */
+    position: absolute;
+    left: 15px;
+    width: calc(50% - 30px);
+    padding-right: 10px;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: bold;
+    color: #555;
+  }
+
+  /* Add data-label attributes to your <td> elements in JSX for this to work */
+  /* Example: <td data-label="Id">{tweet.row_number}</td> */
+}
