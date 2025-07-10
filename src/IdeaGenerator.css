@@ -1,0 +1,363 @@
+/* --- IdeaGenerator Specific Styles --- */
+
+/* Responsive Layout for Generator */
+/* .page-container { ... } Moved to App.css */
+/* .generator-container { ... } Moved to App.css */
+/* .generator-column { ... } Moved to App.css */
+
+/* Card Style (Keep specific card styling here) */
+.card {
+  background: #f8fafc; /* Use specific background */
+  border-radius: 1.25rem;
+  padding: 1.7rem; /* Base padding */
+  box-shadow: 0 8px 32px rgba(129, 140, 248, 0.08);
+  border: 1.5px solid #e0e7ff; /* Specific border */
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem; /* Space between elements inside card */
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #6d28d9; /* Specific header color */
+  letter-spacing: 0.01em;
+}
+
+.card p.placeholder-text {
+  color: var(--text-light);
+  text-align: center;
+  padding: 1rem 0;
+  margin: 0;
+}
+
+/* --- Form Styles --- */
+/* Form styles moved to App.css for global consistency */
+
+/* --- Button Styles --- */
+/* Button styles moved to App.css for global consistency */
+
+/* Copy button specific style */
+.copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  margin-left: 1rem;
+  color: var(--text-light); /* Use variable */
+  transition: color 0.2s; /* Added transition */
+}
+
+.copy-btn:hover { color: var(--accent-primary); } /* Use variable */
+.copy-btn .success-icon { color: var(--success-color); font-weight: 500; } /* Use variable */
+
+/* --- Ideas List --- */
+.ideas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* Space between idea cards */
+  margin-top: 0.5rem;
+}
+
+.suggestion-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color); /* Use variable */
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-size: 0.95rem;
+  background: var(--background-secondary); /* White background */
+}
+
+.suggestion-card:hover {
+  border-color: var(--accent-primary); /* Use variable */
+}
+
+/* --- Reference Tweets Section --- */
+.reference-tweet-controls {
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping */
+  gap: 0.75rem; /* Space between controls */
+  align-items: center;
+}
+.reference-tweet-controls .form-group {
+    flex: 2; /* Allow input group to take more space */
+    min-width: 150px;
+}
+.reference-tweet-controls .form-group:last-of-type { /* Target the select group */
+     flex: 1;
+     min-width: 120px;
+}
+
+.reference-tweet-controls .btn {
+    padding: 0.65rem 1rem;
+    flex-shrink: 0; /* Prevent button from shrinking */
+    /* If you want buttons to wrap below inputs on small screens,
+       you might need a wrapper div around buttons or different flex setup */
+}
+
+
+.reference-tweet-box {
+  background: linear-gradient(135deg, #f3f4f6 60%, #ede9fe 100%); /* Specific background */
+  border: 1px solid var(--border-color); /* Use variable */
+  border-radius: 1.25rem;
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0 6px 32px rgba(167, 139, 250, 0.10);
+  transition: box-shadow 0.2s, background 0.2s;
+  color: var(--text-primary); /* Ensure text color uses variable */
+}
+.reference-tweet-box:focus-within {
+  box-shadow: 0 12px 40px rgba(167, 139, 250, 0.18);
+}
+
+.reference-tweet-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem; /* Space between list items */
+}
+.reference-tweet-item {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem; /* Space between text, tag, and actions */
+  font-size: 1.05rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 1.5rem; /* Larger border-radius */
+  background: #f8fafc; /* Specific background */
+  border: 1.5px solid #e0e7ff; /* Specific border */
+  box-shadow: 0 2px 12px rgba(167, 139, 250, 0.06);
+  transition: background 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.reference-tweet-item:hover {
+  background: #e0e7ff;
+  border-color: #a78bfa;
+  box-shadow: 0 6px 24px rgba(167, 139, 250, 0.13);
+}
+.reference-tweet-item .text {
+  flex: 1;
+  color: var(--text-primary);
+  font-weight: 500;
+  /* Prevent text from being too long in flex item */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.reference-tweet-item .tag {
+  font-weight: 700;
+  color: #6d28d9; /* Specific tag color */
+  background: linear-gradient(90deg, #a78bfa 60%, #818cf8 100%); /* Specific tag background */
+  padding: 0.35rem 1.1rem;
+  border-radius: 9999px;
+  font-size: 0.92rem;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  margin-right: 0.5rem;
+  box-shadow: 0 1px 4px rgba(129, 140, 248, 0.10);
+}
+.reference-tweet-item .actions {
+  margin-left: auto; /* Push actions to the right */
+  display: flex;
+  gap: 0.7rem; /* Space between action buttons */
+  flex-shrink: 0; /* Prevent actions from shrinking */
+}
+.reference-tweet-item .actions button {
+  background: linear-gradient(90deg, #818cf8 60%, #a78bfa 100%); /* Specific button background */
+  color: #fff;
+  border: none;
+  border-radius: 0.7rem;
+  padding: 0.45rem 1.1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(129, 140, 248, 0.10);
+}
+.reference-tweet-item .actions button:hover {
+  background: linear-gradient(90deg, #a78bfa 60%, #818cf8 100%); /* Hover background */
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(129, 140, 248, 0.18);
+}
+
+.selected-tweets-section h4 {
+    margin-top: 0; /* Remove default margin */
+    margin-bottom: 0.75rem; /* Add space below heading */
+    font-size: 1.1rem;
+    color: var(--text-secondary); /* Use variable */
+}
+
+.selected-tweets-section ul.selected-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* Space between selected list items */
+}
+
+.selected-tweets-section ul.selected-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Space between text and remove button */
+  /* margin-bottom: 0.5rem; Handled by ul gap */
+  padding: 0.5rem 0.75rem; /* Add some padding */
+  border: 1px solid var(--border-color); /* Add border */
+  border-radius: 0.5rem; /* Add border-radius */
+  background: var(--background-tertiary); /* Add background */
+  font-size: 0.95rem;
+  color: var(--text-primary); /* Use variable */
+}
+
+.selected-tweets-section ul.selected-list li span {
+    flex: 1; /* Allow text to fill space */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.no-data-message {
+  text-align: center;
+  color: var(--text-light); /* Use variable */
+  font-style: italic;
+  padding: 1rem 0;
+  margin: 0; /* Remove default margin */
+}
+
+/* --- Table Styles --- */
+/* .table-container { ... } Moved to App.css (keep overflow-x here if preferred) */
+
+.reference-tweet-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.98rem;
+  font-family: inherit; /* Use global font */
+}
+
+.reference-tweet-table th,
+.reference-tweet-table td {
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color); /* Use variable */
+  color: var(--text-primary); /* Ensure cell text color uses variable */
+}
+
+.reference-tweet-table th {
+  background: var(--accent-primary); /* Use variable */
+  color: #fff;
+  font-weight: 600;
+  text-transform: uppercase; /* Match App.css version */
+  letter-spacing: 0.05em; /* Match App.css version */
+}
+
+/* Zebra striping for readability */
+.reference-tweet-table tbody tr:nth-child(even) {
+  background: var(--background-tertiary); /* Use variable */
+}
+
+/* Hover effect for rows */
+.reference-tweet-table tbody tr:hover {
+  background: #ede9fe; /* Specific hover color */
+  cursor: pointer;
+}
+
+.reference-tweet-table tbody tr:last-child td {
+  border-bottom: none; /* No border for the last row */
+}
+
+/* @media (max-width: 500px) table styles moved to App.css */
+
+
+/* --- Generated Variations Output --- */
+.variations-output {
+    margin-top: 2rem; /* Add space above the section if it's outside cards */
+}
+.variations-output .variation-card {
+  background-color: var(--background-tertiary); /* Use variable */
+  border: 1px solid var(--border-color); /* Use variable */
+  padding: 1rem;
+  border-radius: 0.5rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  color: var(--text-secondary); /* Use variable for text color */
+}
+.variation-card strong { color: var(--text-primary); } /* Use variable */
+
+
+/* Responsive adjustments for smaller screens specific to this component */
+@media (max-width: 600px) {
+  .card {
+    padding: 1rem; /* Adjust card padding */
+    border-radius: 1rem; /* Slightly smaller radius */
+    gap: 1rem; /* Adjust gap inside card */
+  }
+  .card h3 {
+    font-size: 1.1rem; /* Adjust header size */
+  }
+  .form-input,
+  textarea.form-input,
+  select.form-input {
+    font-size: 0.95rem; /* Adjust input font size */
+    padding: 0.5rem 0.75rem; /* Adjust input padding */
+  }
+  textarea.form-input {
+    min-height: 70px; /* Reduce min height */
+  }
+  select.form-input {
+     padding-right: 2rem; /* Adjust padding for arrow */
+     background-size: 1.2em 1.2em; /* Adjust arrow size */
+  }
+
+  .reference-tweet-table th,
+  .reference-tweet-table td {
+    padding: 8px 6px; /* Adjust table cell padding */
+    font-size: 0.9rem; /* Adjust table font size */
+  }
+   .reference-tweet-table td::before {
+      left: 6px; /* Adjust label left position */
+      width: calc(50% - 12px); /* Adjust label width calculation */
+   }
+
+  .selected-tweets-section h4 {
+    font-size: 1rem; /* Adjust selected heading size */
+    margin-bottom: 0.5rem; /* Adjust space below heading */
+  }
+  .selected-tweets-section ul.selected-list li {
+    font-size: 0.9rem; /* Adjust selected list item font size */
+    padding: 0.4rem 0.6rem; /* Adjust padding */
+  }
+
+  .btn,
+  .btn-primary,
+  .btn-secondary {
+    font-size: 0.95rem; /* Adjust button font size */
+    padding: 0.6rem 1rem; /* Adjust button padding */
+  }
+   .reference-tweet-item {
+     padding: 0.7rem 1rem; /* Adjust reference item padding */
+     gap: 1rem; /* Adjust gap */
+     font-size: 1rem; /* Adjust font size */
+   }
+   .reference-tweet-item .tag {
+     padding: 0.3rem 0.8rem; /* Adjust tag padding */
+     font-size: 0.85rem; /* Adjust tag font size */
+   }
+    .reference-tweet-item .actions button {
+        padding: 0.35rem 0.8rem; /* Adjust action button padding */
+        font-size: 0.9rem; /* Adjust action button font size */
+    }
+}

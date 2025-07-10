@@ -1,68 +1,154 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import "tailwindcss";
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+ 
+/* Mobile stacking for our reference-tweet-table */
+@media (max-width: 500px) {
+  /* (Copy your existing pseudo-element and data-label rules here) */
+  .reference-tweet-table thead { display: none; }
+  .reference-tweet-table,
+  .reference-tweet-table tbody,
+  .reference-tweet-table tr,
+  .reference-tweet-table td {
+    display: block; width: 100%; box-sizing: border-box;
   }
-  a:hover {
-    color: #747bff;
+  .reference-tweet-table tr {
+    margin-bottom: 1rem;
+    border: 1px solid #e5e7eb; /* or border-gray-200 */
+    border-radius: .5rem;
+    background: #fff; /* or bg-white */
+    box-shadow: 0 2px 8px rgba(129, 140, 248, 0.08);
+    padding: .5rem 0;
   }
-  button {
-    background-color: #f9f9f9;
+  .reference-tweet-table td {
+    position: relative;
+    padding: .7em 1rem .7em 50%;
+    text-align: right;
+    border-bottom: 1px dashed #e5e7eb;
   }
+  .reference-tweet-table td::before {
+    content: attr(data-label);
+    position: absolute; left: 1rem;
+    width: calc(50% - 2rem);
+    white-space: nowrap;
+    font-weight: bold;
+    color: #4b5563; /* gray-600 */
+    overflow: hidden; text-overflow: ellipsis;
+  }
+/*
+   Keep the mobile-specific table stacking CSS here.
+   Tailwind does not have utilities for ::before/::after
+   or the data-label attribute trick easily.
+   This is a common practice for complex pseudo-element styles.
+*/
+@media screen and (max-width: 500px) {
+  /* Hide original table header */
+  .reference-tweet-table thead {
+    display: none;
+  }
+
+  /* Make table elements behave like block elements */
+  .reference-tweet-table,
+  .reference-tweet-table tbody,
+  .reference-tweet-table tr,
+  .reference-tweet-table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Add margin/border to rows */
+  .reference-tweet-table tr {
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color); /* Use variable if needed, or Tailwind class border */
+    border-radius: 0.5rem;
+    background: var(--background-secondary); /* Use variable or Tailwind class bg-white */
+    box-shadow: 0 2px 8px rgba(129, 140, 248, 0.08); /* Custom shadow */
+    padding: 0.5rem 0; /* Add vertical padding to the row container */
+  }
+
+   /* Style individual cells */
+  .reference-tweet-table td {
+    text-align: right;
+    padding: 0.7em 1rem 0.7em 50%; /* Adjust padding to make space for label */
+    position: relative;
+    border-bottom: 1px dashed var(--border-color); /* Use variable or Tailwind class border-dashed border */
+     display: flex;
+     align-items: center; /* Vertically center content */
+     justify-content: flex-end; /* Align content to the right */
+     min-height: 40px; /* Ensure minimum height for touchability */
+  }
+
+  /* Remove border for the last cell in a row */
+  .reference-tweet-table tr td:last-child {
+    border-bottom: none;
+  }
+
+  /* Pseudo-element for the label */
+  .reference-tweet-table td::before {
+    content: attr(data-label); /* Use data-label for content */
+    position: absolute;
+    left: 1rem; /* Align label to the left */
+    width: calc(50% - 2rem); /* Width calculation */
+    padding-right: 10px; /* Space between label and content */
+    white-space: nowrap; /* Prevent label wrapping */
+    text-align: left;
+    font-weight: bold;
+    color: var(--text-secondary); /* Use variable or Tailwind class text-gray-600 */
+    overflow: hidden; /* Hide overflowing labels */
+    text-overflow: ellipsis; /* Add ellipsis for overflowing labels */
+    display: flex;
+    align-items: center;
+    height: 100%; /* Match cell height */
+    top: 0; /* Align to top */
+  }
+
+  /* Specific styling for the Actions cell */
+  .reference-tweet-table td[data-label="Actions"] {
+     display: flex; /* Use flexbox */
+     flex-direction: row; /* Keep them in a row */
+     gap: 0.5rem; /* Add space between buttons */
+     justify-content: flex-end; /* Align actions to the right */
+     align-items: center; /* Vertically center buttons */
+     padding-top: 0.5em; /* Adjust padding */
+     padding-bottom: 0.5em; /* Adjust padding */
+  }
+
+  /* Adjust padding on the btn-link within the Actions cell */
+  .reference-tweet-table td[data-label="Actions"] .btn-link {
+      padding: 0.4rem 0.6rem; /* Give them a bit more clickable area */
+      font-size: 0.9rem; /* Match small screen font size */
+      border: 1px solid transparent; /* Add a subtle border */
+      border-radius: 0.3rem; /* Add slight rounded corners */
+      transition: all 0.2s;
+  }
+   .reference-tweet-table td[data-label="Actions"] .btn-link:hover {
+       background-color: rgba(0,0,0,0.05); /* Add hover background */
+       border-color: #e5e7eb; /* Use raw color or define a variable */
+   }
+   .reference-tweet-table td[data-label="Actions"] .btn-link.danger:hover {
+        background-color: rgba(239, 68, 68, 0.1); /* Red background for danger hover */
+   }
+
+
+  /* Specific styling for the Select cell */
+  .reference-tweet-table td[data-label="Select"] {
+     display: flex; /* Use flexbox */
+     justify-content: flex-end; /* Push button to the right */
+     align-items: center; /* Vertically center button */
+     padding-top: 0.5em; /* Adjust padding */
+     padding-bottom: 0.5em; /* Adjust padding */
+  }
+
+  /* Adjust padding/size on the btn-secondary within the Select cell */
+  .reference-tweet-table td[data-label="Select"] .btn-secondary {
+      padding: 0.4rem 0.8rem; /* Adjust button padding */
+      font-size: 0.9rem; /* Match small screen font size */
+      width: auto;
+      min-width: unset;
+  }
+
+}
 }

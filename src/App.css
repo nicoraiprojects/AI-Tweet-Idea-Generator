@@ -23,20 +23,22 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  /* Ensure the main container is centered horizontally */
-  display: flex;
-  justify-content: center;
+  /* Ensure the main container is centered horizontally - this is handled by .app-container max-width */
+  /* display: flex; justify-content: center; Removed as .app-container handles centering via margin */
 }
 
 /* --- App Layout --- */
 .app-container {
   width: 100%; /* Take full width... */
   max-width: 1200px; /* ...but stop at 1200px */
+  margin: 0 auto; /* Center the container */
   padding: 3rem 2rem; /* Padding from the top and sides */
+  box-sizing: border-box; /* Include padding in width */
 }
 
 .app-header {
   margin-bottom: 2.5rem;
+  text-align: center; /* Keep header centered as in App.jsx inline style */
 }
 
 .app-header h1 {
@@ -51,66 +53,121 @@ body {
   margin: 0;
 }
 
+/* Adjust header font sizes for smaller screens */
+@media (max-width: 600px) {
+  .app-container {
+    padding: 2rem 1rem; /* Adjust padding */
+  }
+  .app-header {
+     margin-bottom: 1.5rem;
+  }
+  .app-header h1 {
+    font-size: 1.8rem;
+  }
+  .app-header p {
+    font-size: 1rem;
+  }
+}
+
+
 /* --- Generator Layout --- */
+/* Added a main container for the IdeaGenerator content */
+.page-container {
+  width: 100%;
+  /* min-height: 100vh; Removed, handled by body/overall content */
+  box-sizing: border-box;
+  /* padding: 1rem 0.5rem; Removed, main padding is on .app-container */
+  /* background: var(--background-primary, #f9fafb); Removed, handled by body */
+  display: flex; /* Use flexbox for the page content */
+  flex-direction: column; /* Stack sections vertically by default */
+  gap: 2rem; /* Space between sections (generator container, variations, button) */
+}
+
+
 .generator-container {
   display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
+  flex-wrap: wrap; /* Allow columns to wrap to the next row */
+  gap: 2rem; /* Space between columns */
   align-items: flex-start;
+  justify-content: center; /* Center columns if they don't fill the space */
+  /* max-width: 1200px; Removed, handled by app-container */
+  margin: 0 auto; /* Center within page-container */
 }
 
 .generator-column {
-  flex: 1;
-  min-width: 1200px;
-  margin-top: 70px;
-  /* Ensure results cards appear below the form in the same column */
+  /* OLD: flex: 1; min-width: 1200px; margin-top: 70px; */
+  flex: 1 1 450px; /* Flex grow/shrink, basis 450px (allows 2 columns before wrapping) */
+  min-width: 300px; /* Minimum width before stacking */
+  max-width: 100%; /* Don't exceed container width */
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 2rem; /* Space between cards within a column */
+  /* margin-top: 70px; Removed, let gap handle vertical spacing */
+}
+
+/* Responsive: Stack columns vertically on smaller screens */
+@media (max-width: 900px) {
+  .generator-container {
+    flex-direction: column; /* Stack columns */
+    gap: 1.5rem; /* Adjust gap */
+    padding: 0 0.5rem; /* Add some horizontal padding */
+    align-items: stretch; /* Make columns fill width */
+    justify-content: flex-start; /* Align columns to start */
+  }
+  .generator-column {
+    flex: 1 1 100%; /* Make columns take full width */
+    width: 100%;
+    min-width: 0; /* Reset min-width */
+    gap: 1.5rem; /* Adjust gap within column */
+  }
+  /* Adjust card padding in IdeaGenerator.css instead */
+  /* .card { padding: 1rem; } */
+}
+
+/* Further improve for smaller mobile screens */
+@media (max-width: 600px) {
+  .generator-container {
+    gap: 1rem; /* Reduce gap */
+    padding: 0 0.2rem; /* Reduce horizontal padding */
+  }
+  .generator-column {
+     gap: 1rem; /* Reduce gap within column */
+  }
+   /* Adjust card padding, font sizes, padding etc in IdeaGenerator.css */
 }
 
 /* --- Card Style --- */
-.card {
-  background: #f8fafc;
-  border-radius: 1.25rem;
-  padding: 1.7rem;
-  box-shadow: 0 8px 32px rgba(129, 140, 248, 0.08);
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  border: 1.5px solid #e0e7ff;
-}
+/* Card styles moved to IdeaGenerator.css */
 
-.card h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #6d28d9;
-  letter-spacing: 0.01em;
-}
-
-.card p.placeholder-text {
-  color: var(--text-light);
-  text-align: center;
-  padding: 1rem 0;
-  margin: 0;
-}
 
 /* --- Form Styles --- */
-.form-group {
+/* Form styles kept here for global consistency */
+.form-group,
+.form-group-row {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.form-group-row {
+  flex-direction: row;
+  align-items: flex-end; /* Align items to the bottom */
+}
+.form-group-row .form-group {
+    flex: 1; /* Allow nested form-groups to fill space */
 }
 
 .form-label {
   font-weight: 500;
   font-size: 0.875rem;
   color: var(--text-secondary);
+  display: block; /* Ensure label takes its own line */
+  margin-bottom: 0.25rem; /* Space below label */
 }
 
 .form-input {
   width: 100%;
+  min-width: 0; /* Allow shrinking below content size */
   padding: 0.65rem 1rem;
   border: 1px solid var(--border-color);
   border-radius: 0.5rem;
@@ -119,7 +176,7 @@ body {
   background-color: var(--background-tertiary);
   transition: border-color 0.2s, box-shadow 0.2s;
   box-sizing: border-box;
-  color: #111 !important;
+  color: var(--text-primary); /* Use variable for text color */
 }
 
 .form-input:focus {
@@ -132,25 +189,25 @@ body {
 textarea.form-input {
   resize: vertical;
   min-height: 90px;
-  color: #111 !important;
+  color: var(--text-primary);
 }
 
 /* Style select to look like other inputs */
 select.form-input {
-  appearance: none;
-  background-color: #ede9fe;
-  border: 1.5px solid #a78bfa;
-  color: #4b2997;
+  appearance: none; /* Hide default arrow */
+  background-color: #ede9fe; /* Secondary button background */
+  border: 1.5px solid #a78bfa; /* Secondary button border */
+  color: #4b2997; /* Secondary button text color */
   font-weight: 600;
   font-size: 1rem;
-  border-radius: 0.7rem;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  border-radius: 0.7rem; /* Match secondary button border-radius */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); /* Custom arrow */
   background-position: right 0.9rem center;
   background-repeat: no-repeat;
   background-size: 1.5em 1.5em;
-  padding-right: 2.5rem;
+  padding-right: 2.5rem; /* Make space for the arrow */
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-  color: #111 !important;
+  color: #111; /* Ensure text is visible */
 }
 select.form-input:focus {
   outline: none;
@@ -161,6 +218,7 @@ select.form-input:focus {
 }
 
 /* --- Button Styles --- */
+/* Button styles kept here for global consistency */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -183,7 +241,7 @@ select.form-input:focus {
 .btn-primary {
   background-color: var(--accent-primary);
   color: white;
-  width: 100%;
+  width: 100%; /* Primary button often takes full width */
 }
 .btn-primary:not(:disabled):hover {
   background-color: var(--accent-primary-hover);
@@ -208,139 +266,110 @@ select.form-input:focus {
 .btn-link.danger { color: var(--danger-color); }
 
 
-/* --- Ideas List --- */
-.ideas-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-}
+/* --- IdeaGenerator Specific Styles --- */
+/* (Styles for .ideas-list, .suggestion-card, .copy-btn, etc. should be in IdeaGenerator.css) */
 
-.suggestion-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  font-size: 0.95rem;
-}
-
-.suggestion-card:hover {
-  border-color: var(--accent-primary);
-}
-
-.copy-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
-  padding: 4px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  margin-left: 1rem;
-  color: var(--text-light);
-}
-
-.copy-btn:hover { color: var(--accent-primary); }
-.copy-btn .success-icon { color: var(--success-color); font-weight: 500; }
 
 /* --- Reference Tweets Section --- */
-.reference-tweet-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: center;
-}
-.reference-tweet-controls .form-input { flex: 2; min-width: 150px; }
-.reference-tweet-controls .form-select { flex: 1; min-width: 120px; }
-.reference-tweet-controls .btn { padding: 0.65rem 1rem; flex-shrink: 0; }
+/* (Styles for .reference-tweet-controls, .reference-tweet-box, etc. should be in IdeaGenerator.css) */
 
-.reference-tweet-box {
-  background: linear-gradient(135deg, #f3f4f6 60%, #ede9fe 100%);
-  border: 1px solid var(--border-color);
-  border-radius: 1.25rem;
-  padding: 1.5rem 1.75rem;
-  margin-bottom: 1.5rem;
-  width: 100%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  box-shadow: 0 6px 32px rgba(167, 139, 250, 0.10);
-  transition: box-shadow 0.2s, background 0.2s;
-  color: #111 !important;
+
+/* --- Table Styles & Responsive Adjustments --- */
+/* Base table styles moved to IdeaGenerator.css */
+
+.table-container {
+  overflow-x: auto; /* Adds horizontal scroll for small screens */
+  /* margin: 20px 0; Removed, let card gap handle margin */
+  border-radius: 8px; /* Match card border-radius? Or maybe keep smaller? */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* Lighter shadow */
 }
-.reference-tweet-box:focus-within {
-  box-shadow: 0 12px 40px rgba(167, 139, 250, 0.18);
+
+
+/* Responsive adjustments for smaller screens (Mobile stacking) */
+@media screen and (max-width: 500px) {
+  /* Hide original table header */
+  .reference-tweet-table thead {
+    display: none;
+  }
+
+  /* Make table elements behave like block elements */
+  .reference-tweet-table,
+  .reference-tweet-table tbody,
+  .reference-tweet-table tr,
+  .reference-tweet-table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Add margin/border to rows to create card effect */
+  .reference-tweet-table tr {
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background: var(--background-secondary);
+    box-shadow: 0 2px 8px rgba(129, 140, 248, 0.08);
+    padding: 0.5rem 0;
+  }
+
+   /* Style individual cells for a label-value layout */
+  .reference-tweet-table td {
+    padding: 0.8rem 1rem 0.8rem 40%; /* Give label 40% of space */
+    position: relative;
+    border-bottom: 1px dashed var(--border-color);
+    min-height: 44px; /* Ensure a decent tap height */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* Default alignment is right */
+  }
+
+  /* Remove border for the last cell in a row */
+  .reference-tweet-table tr td:last-child {
+    border-bottom: none;
+  }
+
+  /* Pseudo-element for the label */
+  .reference-tweet-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 1rem;
+    top: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    width: calc(40% - 1.5rem);
+    padding-right: 0.5rem;
+    white-space: nowrap;
+    font-weight: bold;
+    color: var(--text-secondary);
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* --- Special override for the main tweet content --- */
+  .reference-tweet-table td[data-label="Reference Tweet"] {
+    display: block; /* Override the flex behavior */
+    padding: 0.8rem 1rem; /* Reset padding to be even on all sides */
+    text-align: left; /* Align the text to the left */
+    word-break: break-word; /* Allow long words to wrap correctly */
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    hyphens: auto;
+    height: auto; /* Allow the cell to grow with its content */
+    min-height: 0; /* Reset the minimum height */
+  }
+  
+  /* Hide the redundant "Reference Tweet" label for this specific cell */
+  .reference-tweet-table td[data-label="Reference Tweet"]::before {
+    display: none;
+  }
 }
-.reference-tweet-list ul {
-  list-style: none;
-  padding: 0;
-  margin: 1rem 0 0 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-}
-.reference-tweet-item {
-  display: flex;
-  align-items: center;
-  gap: 1.2rem;
-  font-size: 1.05rem;
-  padding: 0.85rem 1.5rem;
-  border-radius: 1.5rem;
-  background: #f8fafc;
-  border: 1.5px solid #e0e7ff;
-  box-shadow: 0 2px 12px rgba(167, 139, 250, 0.06);
-  transition: background 0.2s, box-shadow 0.2s, border-color 0.2s;
-}
-.reference-tweet-item:hover {
-  background: #e0e7ff;
-  border-color: #a78bfa;
-  box-shadow: 0 6px 24px rgba(167, 139, 250, 0.13);
-}
-.reference-tweet-item .text {
-  flex: 1;
-  color: var(--text-primary);
-  font-weight: 500;
-}
-.reference-tweet-item .tag {
-  font-weight: 700;
-  color: #6d28d9;
-  background: linear-gradient(90deg, #a78bfa 60%, #818cf8 100%);
-  padding: 0.35rem 1.1rem;
-  border-radius: 9999px;
-  font-size: 0.92rem;
-  white-space: nowrap;
-  letter-spacing: 0.01em;
-  margin-right: 0.5rem;
-  box-shadow: 0 1px 4px rgba(129, 140, 248, 0.10);
-}
-.reference-tweet-item .actions {
-  margin-left: auto;
-  display: flex;
-  gap: 0.7rem;
-}
-.reference-tweet-item .actions button {
-  background: linear-gradient(90deg, #818cf8 60%, #a78bfa 100%);
-  color: #fff;
-  border: none;
-  border-radius: 0.7rem;
-  padding: 0.45rem 1.1rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-  box-shadow: 0 1px 4px rgba(129, 140, 248, 0.10);
-}
-.reference-tweet-item .actions button:hover {
-  background: linear-gradient(90deg, #a78bfa 60%, #818cf8 100%);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(129, 140, 248, 0.18);
-}
+
+
+/* --- Generated Variations Output --- */
+/* (Styles for .variations-output, .variation-card should be in IdeaGenerator.css) */
+
 
 .error-text {
   color: var(--danger-color);
@@ -348,109 +377,21 @@ select.form-input:focus {
   margin-top: 0.25rem;
 }
 
-/* --- Generated Variations Output --- */
-.variations-output .variation-card {
-  background-color: var(--background-tertiary);
-  border: 1px solid var(--border-color);
-  padding: 1rem;
-  border-radius: 0.5rem;
-  line-height: 1.6;
-  margin-bottom: 1rem;
-}
-.variation-card strong { color: var(--text-primary); }
-
-/* ReferenceTweetTable.css */
-
-.table-container {
-  overflow-x: auto; /* Adds horizontal scroll for small screens */
-  margin: 20px 0;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.reference-tweet-table {
+/* Global button style for the "Generate Tweets" button at the bottom */
+.generate-button-container {
   width: 100%;
-  border-collapse: collapse; /* Ensures no double borders */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #333;
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem; /* Space above the button */
+  margin-bottom: 2rem; /* Space below the button */
 }
 
-.reference-tweet-table th,
-.reference-tweet-table td {
-  padding: 12px 15px;
-  text-align: left;
-  border-bottom: 1px solid #ddd; /* Light border for separation */
-}
-
-.reference-tweet-table th {
-  background-color: #4CAF50; /* A pleasant green header */
-  color: white;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Zebra striping for readability */
-.reference-tweet-table tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-/* Hover effect for rows */
-.reference-tweet-table tbody tr:hover {
-  background-color: #f1f1f1;
-  cursor: pointer;
-}
-
-.reference-tweet-table tbody tr:last-child td {
-  border-bottom: none; /* No border for the last row */
-}
-
-.no-data-message {
-  text-align: center;
-  font-style: italic;
-  color: #777;
-  padding: 20px;
-}
-
-/* Responsive adjustments for smaller screens */
-@media screen and (max-width: 600px) {
-  .reference-tweet-table thead {
-    display: none; /* Hide table headers on small screens */
+/* Adjust button size on smaller screens */
+@media (max-width: 600px) {
+  .generate-button-container .btn-primary {
+    min-width: unset; /* Remove explicit min-width */
+    width: 80%; /* Make it take 80% width */
+    font-size: 1rem; /* Adjust font size */
+    padding: 0.65rem 1rem; /* Adjust padding */
   }
-
-  .reference-tweet-table,
-  .reference-tweet-table tbody,
-  .reference-tweet-table tr,
-  .reference-tweet-table td {
-    display: block; /* Make table elements behave like block elements */
-    width: 100%;
-  }
-
-  .reference-tweet-table tr {
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  }
-
-  .reference-tweet-table td {
-    text-align: right;
-    padding-left: 50%;
-    position: relative;
-  }
-
-  .reference-tweet-table td::before {
-    content: attr(data-label); /* Use data-label for pseudo-element content */
-    position: absolute;
-    left: 15px;
-    width: calc(50% - 30px);
-    padding-right: 10px;
-    white-space: nowrap;
-    text-align: left;
-    font-weight: bold;
-    color: #555;
-  }
-
-  /* Add data-label attributes to your <td> elements in JSX for this to work */
-  /* Example: <td data-label="Id">{tweet.row_number}</td> */
 }
