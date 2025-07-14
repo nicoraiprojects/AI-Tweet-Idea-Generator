@@ -49,7 +49,7 @@ function IdeaGenerator() {
         const data = await response.json();
         const subreddits = (data.data.children || []).map((item: any) => item.data.display_name);
         const aiExamples = [
-          'AI','ArtificialIntelligence', 'MachineLearning','Technology', 'OpenAI', 'ChatGPT', 'DeepLearning', 'AGI', 'AItools', 'Singularity',
+          'AI','ArtificialInteligence', 'MachineLearning','Technology', 'OpenAI', 'ChatGPT', 'DeepLearning', 'AGI', 'AItools', 'Singularity',
           'computervision', 'Datascience', 'LanguageTechnology', 'Robotics', 'PromptEngineering', 'GPT3', 'GPT4'
         ];
         // The original code was only using the preset list. This combines them.
@@ -58,7 +58,7 @@ function IdeaGenerator() {
       } catch (e) {
         console.error("Failed to fetch subreddits, using fallback list.", e);
         setTopSubreddits([
-          'AI','ArtificialIntelligence', 'MachineLearning','Technology', 'OpenAI', 'ChatGPT', 'DeepLearning', 'AGI', 'AItools', 'Singularity',
+          'AI','ArtificialInteligence', 'MachineLearning','Technology', 'OpenAI', 'ChatGPT', 'DeepLearning', 'AGI', 'AItools', 'Singularity',
           'computervision', 'Datascience', 'LanguageTechnology', 'Robotics', 'PromptEngineering', 'GPT3', 'GPT4'
         ]);
       } finally {
