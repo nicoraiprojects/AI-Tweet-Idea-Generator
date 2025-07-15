@@ -490,7 +490,7 @@ function IdeaGenerator() {
               {!isAddFormVisible && (
                 <button
                     onClick={() => setIsAddFormVisible(true)}
-                    className="w-full px-4 py-2 bg-green-100 border-2 border-dashed border-green-300 text-green-700 font-semibold rounded-lg hover:bg-green-200 transition"
+                    className="w-full px-4 py-2 bg-purple-100 border-2 border-dashed border-purple-300 text-purple-700 font-semibold rounded-lg hover:bg-purple-200 transition"
                 >
                     + Add New Reference Tweet
                 </button>
@@ -515,8 +515,8 @@ function IdeaGenerator() {
                                 <option value="casual">Casual</option><option value="professional">Professional</option><option value="witty">Witty</option>
                             </select>
                         </div>
-                        <div className="flex items-center gap-2 mt-4 md:mt-0">
-                            <button type="submit" disabled={isSubmitting} className="flex-grow px-4 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <div className="flex items-center gap-2 pt-6 mt-4 md:mt-0">
+                            <button type="submit" disabled={isSubmitting} className="flex-grow px-4 py-2 bg-purple-500 text-white font-semibold rounded-lg hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed">
                                 {isSubmitting ? 'Adding...' : 'Add Tweet'}
                             </button>
                             <button type="button" onClick={() => setIsAddFormVisible(false)} className="px-4 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300">
