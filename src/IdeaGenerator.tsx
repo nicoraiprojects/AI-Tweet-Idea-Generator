@@ -52,12 +52,12 @@ function IdeaGenerator() {
         const response = await fetch('https://www.reddit.com/subreddits/popular.json?limit=50');
         const data = await response.json();
         const subreddits = (data.data.children || []).map((item: any) => item.data.display_name);
-        const aiExamples = [ 'AI','ArtificialIntelligence', 'MachineLearning','Technology', 'OpenAI', 'ChatGPT', 'DeepLearning', 'AGI', 'AItools', 'Singularity', 'computervision', 'Datascience', 'LanguageTechnology', 'Robotics', 'PromptEngineering', 'GPT3', 'GPT4' ];
+        const aiExamples = [ 'AI','ArtificialInteligence', 'MachineLearning','Technology', 'OpenAI', 'ChatGPT', 'DeepLearning', 'AGI', 'AItools', 'Singularity', 'computervision', 'Datascience', 'LanguageTechnology', 'Robotics', 'PromptEngineering', 'GPT3', 'GPT4' ];
         const allSubs = Array.from(new Set([...aiExamples, ...subreddits]));
         setTopSubreddits(allSubs);
       } catch (e) {
         console.error("Failed to fetch subreddits, using fallback list.", e);
-        setTopSubreddits([ 'AI','ArtificialIntelligence', 'MachineLearning','Technology', 'OpenAI', 'ChatGPT', 'DeepLearning', 'AGI', 'AItools', 'Singularity', 'computervision', 'Datascience', 'LanguageTechnology', 'Robotics', 'PromptEngineering', 'GPT3', 'GPT4' ]);
+        setTopSubreddits([ 'AI','ArtificialInteligence', 'MachineLearning','Technology', 'OpenAI', 'ChatGPT', 'DeepLearning', 'AGI', 'AItools', 'Singularity', 'computervision', 'Datascience', 'LanguageTechnology', 'Robotics', 'PromptEngineering', 'GPT3', 'GPT4' ]);
       } finally {
         setIsLoadingSubreddits(false);
       }
