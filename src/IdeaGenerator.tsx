@@ -4,6 +4,7 @@ function IdeaGenerator() {
   // --- Type Definitions ---
   type SuggestedIdea = {
     generated_idea: string;
+    flair?: string; // UPDATED: Added optional flair property
     [key: string]: any;
   };
 
@@ -53,12 +54,12 @@ function IdeaGenerator() {
         const response = await fetch('https://www.reddit.com/subreddits/popular.json?limit=50');
         const data = await response.json();
         const subreddits = (data.data.children || []).map((item: any) => item.data.display_name);
-        const aiExamples = [ 'AI','ArtificialIntelligence', 'MachineLearning','Technology', 'OpenAI', 'ChatGPT', 'DeepLearning', 'AGI', 'AItools', 'Singularity', 'computervision', 'Datascience', 'LanguageTechnology', 'Robotics', 'PromptEngineering', 'GPT3', 'GPT4' ];
+        const aiExamples = [ 'AI','ArtificialInteligence', 'MachineLearning','Technology', 'OpenAI', 'ChatGPT', 'DeepLearning', 'AGI', 'AItools', 'Singularity', 'computervision', 'Datascience', 'LanguageTechnology', 'Robotics', 'PromptEngineering', 'GPT3', 'GPT4' ];
         const allSubs = Array.from(new Set([...aiExamples, ...subreddits]));
         setTopSubreddits(allSubs);
       } catch (e) {
         console.error("Failed to fetch subreddits, using fallback list.", e);
-        setTopSubreddits([ 'AI','ArtificialIntelligence', 'MachineLearning','Technology', 'OpenAI', 'ChatGPT', 'DeepLearning', 'AGI', 'AItools', 'Singularity', 'computervision', 'Datascience', 'LanguageTechnology', 'Robotics', 'PromptEngineering', 'GPT3', 'GPT4' ]);
+        setTopSubreddits([ 'AI','ArtificialInteligence', 'MachineLearning','Technology', 'OpenAI', 'ChatGPT', 'DeepLearning', 'AGI', 'AItools', 'Singularity', 'computervision', 'Datascience', 'LanguageTechnology', 'Robotics', 'PromptEngineering', 'GPT3', 'GPT4' ]);
       } finally {
         setIsLoadingSubreddits(false);
       }
@@ -101,13 +102,9 @@ function IdeaGenerator() {
       });
       const data = await response.json();
       
-      // --- THIS IS THE FINAL, CORRECTED PARSING LOGIC ---
       let variationsArray = [];
-      
-      // First, get the actual data object, which is inside the first element of the array.
       const resultObject = Array.isArray(data) && data.length > 0 ? data[0] : data;
 
-      // Now parse the object for the variation keys.
       if (resultObject) {
         if (resultObject.variation1) variationsArray.push(resultObject.variation1);
         if (resultObject.variation2) variationsArray.push(resultObject.variation2);
@@ -142,22 +139,27 @@ function IdeaGenerator() {
       if (Array.isArray(data)) foundIdeas = data.map(item => item?.json ?? item);
       else if (data && (data.title || data.generated_idea)) foundIdeas = [data];
 
+      // UPDATED: Now looks for the flair property from the n8n response
       const cleanedIdeas = foundIdeas.map(idea => {
         let text = idea.title || idea.generated_idea || '';
         const prefixRegex = /^(?:\*\*|)?(?:Content|Tweet|Twitter)\s(?:Idea|Post):\s?(?:\*\*|")?\s?/i;
         text = text.replace(prefixRegex, '').replace(/(\*\*|")\s*$/, '').trim();
-        return { generated_idea: text };
+        return { 
+            generated_idea: text,
+            flair: idea.flair || idea.link_flair_text // Look for 'flair' or 'link_flair_text'
+        };
       });
       setSuggestedIdeas(cleanedIdeas);
     } catch (error)
     {
       console.error("Error fetching ideas:", error);
-      alert("Failed to fetch ideas. Make sure your n8n 'start' workflow is active.");
+      alert("Failed to fetch ideas. Make sure your n8n 'start' workflow is active and returns the correct format.");
     } finally {
       setIsLoading(false);
     }
   };
   
+  // ... (the rest of the functions remain the same)
   const handleGenerateSingleIdea = async () => {
     if (!finalIdea) {
       alert("Please set a base idea in Step 2 before generating.");
@@ -185,7 +187,6 @@ function IdeaGenerator() {
       setIsGeneratingSingleIdea(false);
     }
   };
-
   const fetchReferenceTweets = async () => {
     setIsLoadingReferences(true);
     setReferenceTweets([]);
@@ -218,7 +219,6 @@ function IdeaGenerator() {
       setIsLoadingReferences(false);
     }
   };
-  
   const handleAddTweet = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!newTweetText.trim()) {
@@ -246,7 +246,6 @@ function IdeaGenerator() {
       setIsSubmitting(false);
     }
   };
-
   const handleUpdateTweet = async () => {
     if (!editingRowId || !editedTweetData) return;
     setIsSubmitting(true);
@@ -269,7 +268,6 @@ function IdeaGenerator() {
       setIsSubmitting(false);
     }
   };
-
   const handleDeleteTweet = async (rowNumber: number) => {
     if (!window.confirm('Are you sure you want to delete this tweet?')) return;
     setIsSubmitting(true);
@@ -287,7 +285,6 @@ function IdeaGenerator() {
       setIsSubmitting(false);
     }
   };
-
   const handleStartEdit = (tweet: ReferenceTweet) => {
     setEditingRowId(tweet.row_number);
     setEditedTweetData({
@@ -296,12 +293,10 @@ function IdeaGenerator() {
       Tone_Style: tweet.Tone_Style,
     });
   };
-  
   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setEditedTweetData(prev => ({ ...prev, [name]: value } as Partial<ReferenceTweet>));
   };
-  
   const handleCopyIdea = async (ideaText: string, index: number) => { try { await navigator.clipboard.writeText(ideaText); setCopiedIndex(index); setTimeout(() => setCopiedIndex(null), 1500); } catch { alert('Failed to copy!'); } };
   const handleSuggestionClick = (ideaText: string) => { setFinalIdea(ideaText); };
   const handleSelectTweetForGeneration = (tweet: ReferenceTweet) => { if (!selectedForGeneration.some(t => t.row_number === tweet.row_number)) { setSelectedForGeneration([...selectedForGeneration, tweet]); } };
@@ -350,16 +345,24 @@ function IdeaGenerator() {
               <div className="flex flex-col gap-2 mt-4">
                 {isLoading ? (<p className="text-center text-slate-500 italic">Loading suggested ideas…</p>) : suggestedIdeas.length > 0 ? (
                   suggestedIdeas.map((idea, idx) => (
+                    // UPDATED: This now includes the flair tag
                     <div key={idx} onClick={() => handleSuggestionClick(idea.generated_idea)} className="flex justify-between items-center px-4 py-2 border border-slate-200 rounded-lg cursor-pointer hover:border-purple-400 transition">
-                      <span className="text-slate-900">{idea.generated_idea}</span>
-                      <button onClick={e => { e.stopPropagation(); handleCopyIdea(idea.generated_idea, idx); }} className="ml-4 p-1 rounded hover:text-purple-400 text-slate-500">{copiedIndex === idx ? '✅' : '📋'}</button>
+                        <div className="flex items-center gap-3 flex-grow min-w-0">
+                            {idea.flair && (
+                                <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap">
+                                    {idea.flair}
+                                </span>
+                            )}
+                            <span className="text-slate-900 truncate">{idea.generated_idea}</span>
+                        </div>
+                      <button onClick={e => { e.stopPropagation(); handleCopyIdea(idea.generated_idea, idx); }} className="ml-4 p-1 rounded hover:text-purple-400 text-slate-500 flex-shrink-0">{copiedIndex === idx ? '✅' : '📋'}</button>
                     </div>
                   ))
                 ) : (<p className="text-center text-slate-500 italic">No ideas yet. Click “Fetch New Ideas.”</p>)}
               </div>
             </div>
 
-            {/* --- RIGHT COLUMN --- */}
+            {/* --- RIGHT COLUMN (rest of the code is unchanged) --- */}
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-lg flex flex-col gap-6">
               <h3 className="text-xl font-bold text-purple-700">2. Set Base Idea</h3>
               <textarea className="w-full px-4 py-2 bg-slate-100 border border-slate-200 rounded-lg resize-y focus:outline-none focus:ring-2 focus:ring-purple-300 min-h-[120px]" placeholder="Click an idea from the left, or type your own here…" value={finalIdea} onChange={e => setFinalIdea(e.target.value)} />
