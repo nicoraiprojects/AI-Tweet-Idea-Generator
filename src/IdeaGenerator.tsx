@@ -4,7 +4,7 @@ function IdeaGenerator() {
   // --- Type Definitions ---
   type SuggestedIdea = {
     generated_idea: string;
-    flair?: string; // UPDATED: Added optional flair property
+    flair?: string;
     [key: string]: any;
   };
 
@@ -13,6 +13,7 @@ function IdeaGenerator() {
     Reference_Tweet: string;
     Category: string;
     Tone_Style: string;
+    Tags?: string;
   };
 
   // --- State Variables ---
@@ -33,17 +34,22 @@ function IdeaGenerator() {
   const [isLoadingSubreddits, setIsLoadingSubreddits] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const subredditInputRef = useRef<HTMLDivElement>(null);
-  const [singleGeneratedIdea, setSingleGeneratedIdea] = useState('');
-  const [isGeneratingSingleIdea, setIsGeneratingSingleIdea] = useState(false);
+  const [brandVoice, setBrandVoice] = useState('');
 
   const [editingRowId, setEditingRowId] = useState<number | null>(null);
   const [editedTweetData, setEditedTweetData] = useState<Partial<ReferenceTweet> | null>(null);
   const [newTweetText, setNewTweetText] = useState('');
   const [newTweetCategory, setNewTweetCategory] = useState('Educational');
   const [newTweetTone, setNewTweetTone] = useState('casual');
+  const [newTweetTags, setNewTweetTags] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAddFormVisible, setIsAddFormVisible] = useState(false);
   const [isReferenceSectionVisible, setIsReferenceSectionVisible] = useState(false);
+
+  // --- NEW STATE FOR SUGGESTIONS ---
+  const [suggestionTopic, setSuggestionTopic] = useState('');
+  const [suggestedTweets, setSuggestedTweets] = useState<string[]>([]);
+  const [isSuggesting, setIsSuggesting] = useState(false);
 
 
   // --- Side Effects ---
@@ -54,12 +60,12 @@ function IdeaGenerator() {
         const response = await fetch('https://www.reddit.com/subreddits/popular.json?limit=50');
         const data = await response.json();
         const subreddits = (data.data.children || []).map((item: any) => item.data.display_name);
-        const aiExamples = [ 'AI','ArtificialInteligence', 'MachineLearning','Technology', 'OpenAI', 'ChatGPT', 'DeepLearning', 'AGI', 'AItools', 'Singularity', 'computervision', 'Datascience', 'LanguageTechnology', 'Robotics', 'PromptEngineering', 'GPT3', 'GPT4' ];
+        const aiExamples = [ 'AI','ArtificialIntelligence', 'MachineLearning','Technology', 'OpenAI', 'ChatGPT', 'DeepLearning', 'AGI', 'AItools', 'Singularity', 'computervision', 'Datascience', 'LanguageTechnology', 'Robotics', 'PromptEngineering', 'GPT3', 'GPT4' ];
         const allSubs = Array.from(new Set([...aiExamples, ...subreddits]));
         setTopSubreddits(allSubs);
       } catch (e) {
         console.error("Failed to fetch subreddits, using fallback list.", e);
-        setTopSubreddits([ 'AI','ArtificialInteligence', 'MachineLearning','Technology', 'OpenAI', 'ChatGPT', 'DeepLearning', 'AGI', 'AItools', 'Singularity', 'computervision', 'Datascience', 'LanguageTechnology', 'Robotics', 'PromptEngineering', 'GPT3', 'GPT4' ]);
+        setTopSubreddits([ 'AI','ArtificialIntelligence', 'MachineLearning','Technology', 'OpenAI', 'ChatGPT', 'DeepLearning', 'AGI', 'AItools', 'Singularity', 'computervision', 'Datascience', 'LanguageTechnology', 'Robotics', 'PromptEngineering', 'GPT3', 'GPT4' ]);
       } finally {
         setIsLoadingSubreddits(false);
       }
@@ -97,7 +103,8 @@ function IdeaGenerator() {
           idea: finalIdea,
           category: selectedCategory,
           tone: selectedTone,
-          reference_tweets: selectedForGeneration.map(t => t.Reference_Tweet)
+          reference_tweets: selectedForGeneration.map(t => t.Reference_Tweet),
+          brand_voice: brandVoice 
         }),
       });
       const data = await response.json();
@@ -139,14 +146,13 @@ function IdeaGenerator() {
       if (Array.isArray(data)) foundIdeas = data.map(item => item?.json ?? item);
       else if (data && (data.title || data.generated_idea)) foundIdeas = [data];
 
-      // UPDATED: Now looks for the flair property from the n8n response
       const cleanedIdeas = foundIdeas.map(idea => {
         let text = idea.title || idea.generated_idea || '';
         const prefixRegex = /^(?:\*\*|)?(?:Content|Tweet|Twitter)\s(?:Idea|Post):\s?(?:\*\*|")?\s?/i;
         text = text.replace(prefixRegex, '').replace(/(\*\*|")\s*$/, '').trim();
         return { 
             generated_idea: text,
-            flair: idea.flair || idea.link_flair_text // Look for 'flair' or 'link_flair_text'
+            flair: idea.flair || idea.link_flair_text
         };
       });
       setSuggestedIdeas(cleanedIdeas);
@@ -159,34 +165,6 @@ function IdeaGenerator() {
     }
   };
   
-  // ... (the rest of the functions remain the same)
-  const handleGenerateSingleIdea = async () => {
-    if (!finalIdea) {
-      alert("Please set a base idea in Step 2 before generating.");
-      return;
-    }
-    setIsGeneratingSingleIdea(true);
-    setSingleGeneratedIdea('');
-    try {
-      const response = await fetch('https://fahisk.app.n8n.cloud/webhook/fetch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({
-          title: finalIdea,
-          category: selectedCategory,
-          tone: selectedTone,
-        }),
-      });
-      const data = await response.json();
-      const ideaText = data.text || data.generated_idea || (data[0]?.json?.generated_idea) || (Array.isArray(data) && data[0]?.generated_idea) || JSON.stringify(data);
-      setSingleGeneratedIdea(ideaText);
-    } catch (error) {
-      console.error("Error generating single idea:", error);
-      alert("Failed to generate the idea. Please check your n8n workflow and connection.");
-    } finally {
-      setIsGeneratingSingleIdea(false);
-    }
-  };
   const fetchReferenceTweets = async () => {
     setIsLoadingReferences(true);
     setReferenceTweets([]);
@@ -204,7 +182,8 @@ function IdeaGenerator() {
             row_number: raw.row_number,
             Reference_Tweet: raw["Reference Tweet"] || raw.Reference_Tweet,
             Category: raw.Category,
-            Tone_Style: raw.Tone_Style || raw["Tone/Style"] || raw.Tone
+            Tone_Style: raw.Tone_Style || raw["Tone/Style"] || raw.Tone,
+            Tags: raw.Tags || ''
           };
         });
         setReferenceTweets(flatTweets);
@@ -219,6 +198,7 @@ function IdeaGenerator() {
       setIsLoadingReferences(false);
     }
   };
+  
   const handleAddTweet = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!newTweetText.trim()) {
@@ -234,9 +214,13 @@ function IdeaGenerator() {
           Reference_Tweet: newTweetText,
           Category: newTweetCategory,
           Tone_Style: newTweetTone,
+          Tags: newTweetTags
         }),
       });
       setNewTweetText('');
+      setNewTweetTags('');
+      setNewTweetCategory('Educational');
+      setNewTweetTone('casual');
       setIsAddFormVisible(false);
       await fetchReferenceTweets();
     } catch (error) {
@@ -246,6 +230,7 @@ function IdeaGenerator() {
       setIsSubmitting(false);
     }
   };
+
   const handleUpdateTweet = async () => {
     if (!editingRowId || !editedTweetData) return;
     setIsSubmitting(true);
@@ -268,6 +253,7 @@ function IdeaGenerator() {
       setIsSubmitting(false);
     }
   };
+
   const handleDeleteTweet = async (rowNumber: number) => {
     if (!window.confirm('Are you sure you want to delete this tweet?')) return;
     setIsSubmitting(true);
@@ -285,18 +271,63 @@ function IdeaGenerator() {
       setIsSubmitting(false);
     }
   };
+  
+  // --- NEW FUNCTION TO GET SUGGESTIONS (WITH ERROR HANDLING) ---
+  const handleSuggestTweets = async () => {
+    if (!suggestionTopic) return;
+    setIsSuggesting(true);
+    setSuggestedTweets([]);
+    try {
+        const response = await fetch('https://fahisk.app.n8n.cloud/webhook/suggest', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ topic: suggestionTopic })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const responseText = data.text || (Array.isArray(data) && data[0]?.text) || '';
+
+        if (responseText.trim().toUpperCase() === 'NO_RESULTS' || responseText.trim() === '') {
+            setSuggestedTweets(['No good results found for this topic. Please try being more specific.']);
+        } else {
+            const suggestionsArray = responseText.split('|||').map(s => s.trim()).filter(Boolean);
+            setSuggestedTweets(suggestionsArray);
+        }
+    } catch (error) {
+        console.error("Error suggesting tweets:", error);
+        alert("Failed to suggest new tweets. Please check your n8n 'suggest' workflow and browser console.");
+        setSuggestedTweets(['An error occurred. Please try again.']);
+    } finally {
+        setIsSuggesting(false);
+    }
+  };
+
+  // --- NEW FUNCTION TO HANDLE ADDING A SUGGESTED TWEET ---
+  const handleAddSuggestedTweet = (tweetText: string) => {
+    setIsAddFormVisible(true);
+    setNewTweetText(tweetText);
+    setSuggestedTweets(prev => prev.filter(t => t !== tweetText));
+  };
+
   const handleStartEdit = (tweet: ReferenceTweet) => {
     setEditingRowId(tweet.row_number);
     setEditedTweetData({
       Reference_Tweet: tweet.Reference_Tweet,
       Category: tweet.Category,
       Tone_Style: tweet.Tone_Style,
+      Tags: tweet.Tags
     });
   };
+  
   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setEditedTweetData(prev => ({ ...prev, [name]: value } as Partial<ReferenceTweet>));
   };
+
   const handleCopyIdea = async (ideaText: string, index: number) => { try { await navigator.clipboard.writeText(ideaText); setCopiedIndex(index); setTimeout(() => setCopiedIndex(null), 1500); } catch { alert('Failed to copy!'); } };
   const handleSuggestionClick = (ideaText: string) => { setFinalIdea(ideaText); };
   const handleSelectTweetForGeneration = (tweet: ReferenceTweet) => { if (!selectedForGeneration.some(t => t.row_number === tweet.row_number)) { setSelectedForGeneration([...selectedForGeneration, tweet]); } };
@@ -310,6 +341,7 @@ function IdeaGenerator() {
             {/* --- LEFT COLUMN --- */}
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-lg flex flex-col gap-5">
               <h3 className="text-xl font-bold text-purple-700">1. Fetch Raw Ideas</h3>
+              {/* ... same as before ... */}
               <div className="flex flex-col sm:flex-row sm:space-x-4 items-end gap-4">
                 <div className="flex-1 w-full">
                   <label htmlFor="subreddit" className="text-sm font-medium text-slate-600 block mb-1">Subreddit</label>
@@ -345,7 +377,6 @@ function IdeaGenerator() {
               <div className="flex flex-col gap-2 mt-4">
                 {isLoading ? (<p className="text-center text-slate-500 italic">Loading suggested ideas…</p>) : suggestedIdeas.length > 0 ? (
                   suggestedIdeas.map((idea, idx) => (
-                    // UPDATED: This now includes the flair tag
                     <div key={idx} onClick={() => handleSuggestionClick(idea.generated_idea)} className="flex justify-between items-center px-4 py-2 border border-slate-200 rounded-lg cursor-pointer hover:border-purple-400 transition">
                         <div className="flex items-center gap-3 flex-grow min-w-0">
                             {idea.flair && (
@@ -362,11 +393,19 @@ function IdeaGenerator() {
               </div>
             </div>
 
-            {/* --- RIGHT COLUMN (rest of the code is unchanged) --- */}
+            {/* --- RIGHT COLUMN --- */}
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-lg flex flex-col gap-6">
               <h3 className="text-xl font-bold text-purple-700">2. Set Base Idea</h3>
               <textarea className="w-full px-4 py-2 bg-slate-100 border border-slate-200 rounded-lg resize-y focus:outline-none focus:ring-2 focus:ring-purple-300 min-h-[120px]" placeholder="Click an idea from the left, or type your own here…" value={finalIdea} onChange={e => setFinalIdea(e.target.value)} />
             
+              <h3 className="text-xl font-bold text-purple-700">Brand Voice (Optional)</h3>
+              <textarea
+                  className="w-full px-4 py-2 bg-slate-100 border border-slate-200 rounded-lg resize-y focus:outline-none focus:ring-2 focus:ring-purple-300 min-h-[100px]"
+                  placeholder="Paste sample text or describe your brand voice here. For example: 'Friendly, professional, uses emojis sparingly. Focus on clarity and value.'"
+                  value={brandVoice}
+                  onChange={e => setBrandVoice(e.target.value)}
+              />
+
               <h3 className="text-xl font-bold text-purple-700">3. Generate Content</h3>
               
               <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-3">
@@ -420,7 +459,7 @@ function IdeaGenerator() {
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-lg flex flex-col gap-5">
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-bold text-purple-700">Optional: Reference Tweet Manager</h3>
-                <button onClick={() => setIsReferenceSectionVisible(false)} className="px-4 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300">Hide Manager</button>
+                <button onClick={() => setIsReferenceSectionVisible(false)} className="px-4 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300">Hide</button>
               </div>
               <p className="text-sm text-slate-600 -mt-3">Select tweets here to give the AI better examples of the style you want. Your selections will be used when you click "Generate Final Variations".</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
@@ -453,6 +492,10 @@ function IdeaGenerator() {
                           <label htmlFor="newTweetText" className="text-sm font-medium text-slate-600 block mb-1">Tweet Text</label>
                           <input id="newTweetText" type="text" value={newTweetText} onChange={(e) => setNewTweetText(e.target.value)} placeholder="Enter the new tweet..." className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300"/>
                       </div>
+                      <div>
+                          <label htmlFor="newTweetTags" className="text-sm font-medium text-slate-600 block mb-1">Tags</label>
+                          <input id="newTweetTags" type="text" value={newTweetTags} onChange={(e) => setNewTweetTags(e.target.value)} placeholder="e.g. funny, tech, high engagement" className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300"/>
+                      </div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                           <div>
                               <label htmlFor="newTweetCategory" className="text-sm font-medium text-slate-600 block mb-1">Category</label>
@@ -478,6 +521,50 @@ function IdeaGenerator() {
                   </form>
                 )}
               </div>
+              
+              {/* --- NEW SUGGESTION UI --- */}
+              <div className="mt-6 p-4 border-t-2 border-dashed border-slate-200">
+                  <h4 className="text-lg font-semibold text-slate-800 mb-2">Find & Add New References by Topic</h4>
+                  <div className="flex gap-2 items-center">
+                      <input 
+                          type="text" 
+                          value={suggestionTopic} 
+                          onChange={e => setSuggestionTopic(e.target.value)} 
+                          placeholder="e.g., AI startups, new javascript features" 
+                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+                      />
+                      <button 
+                          onClick={handleSuggestTweets} 
+                          disabled={isSuggesting || !suggestionTopic}
+                          className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 disabled:opacity-50 whitespace-nowrap"
+                      >
+                          {isSuggesting ? 'Finding...' : 'Find Tweets'}
+                      </button>
+                  </div>
+
+                  {isSuggesting && <p className="text-center text-slate-500 italic mt-4">Searching for inspiration...</p>}
+
+                  {suggestedTweets.length > 0 && (
+                      <div className="mt-4 space-y-2">
+                          <h5 className="font-semibold text-slate-700">Suggestions:</h5>
+                          {suggestedTweets.map((tweet, index) => (
+                              <div key={index} className="p-3 bg-slate-100 rounded-lg flex justify-between items-center gap-4">
+                                  <p className="text-slate-800 flex-grow">{tweet}</p>
+                                  {/* Conditionally render the button */}
+                                  {!tweet.includes('No good results found') && !tweet.includes('An error occurred') && (
+                                      <button 
+                                          onClick={() => handleAddSuggestedTweet(tweet)}
+                                          className="px-3 py-1 bg-green-500 text-white text-sm font-semibold rounded-lg hover:bg-green-600 ml-4 flex-shrink-0"
+                                      >
+                                          Add to Library
+                                      </button>
+                                  )}
+                              </div>
+                          ))}
+                      </div>
+                  )}
+              </div>
+              
               <div className="mt-4">
                 <h4 className="text-lg text-slate-600 mb-2">Tweets Selected for Generation</h4>
                 {selectedForGeneration.length > 0 ? (
@@ -486,15 +573,15 @@ function IdeaGenerator() {
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-slate-200">
-                  <thead className="bg-purple-600"><tr>{['Id', 'Reference Tweet', 'Category', 'Tone/Style', 'Actions'].map(h => (<th key={h} className="px-4 py-2 text-left text-white uppercase text-xs font-semibold tracking-wide">{h}</th>))}</tr></thead>
+                  <thead className="bg-purple-600"><tr>{['Id', 'Reference Tweet', 'Category', 'Tone/Style', 'Tags', 'Actions'].map(h => (<th key={h} className="px-4 py-2 text-left text-white uppercase text-xs font-semibold tracking-wide">{h}</th>))}</tr></thead>
                   <tbody className="divide-y divide-slate-200">
-                    {isLoadingReferences ? (<tr><td colSpan={5} className="py-4 text-center text-slate-500 italic">Loading…</td></tr>) : referenceTweets.length > 0 ? (
+                    {isLoadingReferences ? (<tr><td colSpan={6} className="py-4 text-center text-slate-500 italic">Loading…</td></tr>) : referenceTweets.length > 0 ? (
                       referenceTweets.map((t) => {
                         const isEditing = editingRowId === t.row_number;
                         return (
                         <tr key={t.row_number} className={isEditing ? 'bg-purple-50' : ''}>
                           <td className="px-4 py-2 align-top">{t.row_number}</td>
-                          <td className="px-4 py-2 align-top w-1/2">
+                          <td className="px-4 py-2 align-top w-2/5">
                             {isEditing ? (<input type="text" name="Reference_Tweet" value={editedTweetData?.Reference_Tweet || ''} onChange={handleEditChange} className="w-full px-2 py-1 border border-purple-300 rounded-md"/>) : ( t.Reference_Tweet )}
                           </td>
                           <td className="px-4 py-2 align-top">
@@ -502,6 +589,11 @@ function IdeaGenerator() {
                           </td>
                           <td className="px-4 py-2 align-top">
                             {isEditing ? (<select name="Tone_Style" value={editedTweetData?.Tone_Style || ''} onChange={handleEditChange} className="w-full px-2 py-1 border border-purple-300 rounded-md"><option value="casual">Casual</option><option value="professional">Professional</option><option value="witty">Witty</option></select>) : ( t.Tone_Style )}
+                          </td>
+                          <td className="px-4 py-2 align-top">
+                            {isEditing ? (
+                                <input type="text" name="Tags" value={editedTweetData?.Tags || ''} onChange={handleEditChange} placeholder="e.g. funny, tech" className="w-full px-2 py-1 border border-purple-300 rounded-md"/>
+                            ) : ( t.Tags )}
                           </td>
                           <td className="px-4 py-2 align-top">
                             <div className="flex items-center gap-2">
@@ -521,7 +613,7 @@ function IdeaGenerator() {
                           </td>
                         </tr>
                       )})
-                    ) : (<tr><td colSpan={5} className="py-4 text-center text-slate-500 italic">No tweets loaded. Please use the filters and fetch.</td></tr>)}
+                    ) : (<tr><td colSpan={6} className="py-4 text-center text-slate-500 italic">No tweets loaded. Please use the filters and fetch.</td></tr>)}
                   </tbody>
                 </table>
               </div>
