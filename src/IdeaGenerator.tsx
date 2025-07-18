@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 
 function IdeaGenerator() {
   // --- Type Definitions ---
@@ -27,7 +28,6 @@ function IdeaGenerator() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [referenceTweets, setReferenceTweets] = useState<ReferenceTweet[]>([]);
   const [isLoadingReferences, setIsLoadingReferences] = useState(false);
-  const [selectedForGeneration, setSelectedForGeneration] = useState<ReferenceTweet[]>([]);
   const [fetchSubreddit, setFetchSubreddit] = useState('');
   const [fetchLimit, setFetchLimit] = useState(5);
   const [topSubreddits, setTopSubreddits] = useState<string[]>([]);
@@ -45,8 +45,7 @@ function IdeaGenerator() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAddFormVisible, setIsAddFormVisible] = useState(false);
   const [isReferenceSectionVisible, setIsReferenceSectionVisible] = useState(false);
-
-  // --- NEW STATE FOR SUGGESTIONS ---
+  
   const [suggestionTopic, setSuggestionTopic] = useState('');
   const [suggestedTweets, setSuggestedTweets] = useState<string[]>([]);
   const [isSuggesting, setIsSuggesting] = useState(false);
@@ -96,14 +95,14 @@ function IdeaGenerator() {
     setIsGenerating(true);
     setVariations([]);
     try {
-      const response = await fetch('https://fahisk.app.n8n.cloud/webhook/generate', {
+      // API call is now simpler: it doesn't need to send reference_tweets
+      const response = await fetch('https://fahis12.app.n8n.cloud/webhook/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           idea: finalIdea,
           category: selectedCategory,
           tone: selectedTone,
-          reference_tweets: selectedForGeneration.map(t => t.Reference_Tweet),
           brand_voice: brandVoice 
         }),
       });
@@ -116,13 +115,15 @@ function IdeaGenerator() {
         if (resultObject.variation1) variationsArray.push(resultObject.variation1);
         if (resultObject.variation2) variationsArray.push(resultObject.variation2);
         if (resultObject.variation3) variationsArray.push(resultObject.variation3);
+      } else {
+        toast.error("The AI returned an unexpected format. Please try again.");
       }
       
       setVariations(variationsArray);
 
     } catch (error) {
       console.error("Error generating variations:", error);
-      alert("Failed to generate variations. Please check your n8n 'generate' workflow and prompt.");
+      toast.error("Failed to generate variations. Check the n8n workflow and console.");
     } finally {
       setIsGenerating(false);
     }
@@ -130,13 +131,13 @@ function IdeaGenerator() {
 
   const fetchIdeas = async () => {
     if (!fetchSubreddit) {
-        alert("Please enter a subreddit first.");
+        toast.error("Please enter a subreddit first.");
         return;
     }
     setIsLoading(true);
     setSuggestedIdeas([]);
     try {
-      const response = await fetch('https://fahisk.app.n8n.cloud/webhook/start', {
+      const response = await fetch('https://fahis12.app.n8n.cloud/webhook/start', {
         method: 'POST',
         headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
         body: JSON.stringify({ subreddit: fetchSubreddit, limit: fetchLimit })
@@ -159,7 +160,7 @@ function IdeaGenerator() {
     } catch (error)
     {
       console.error("Error fetching ideas:", error);
-      alert("Failed to fetch ideas. Make sure your n8n 'start' workflow is active and returns the correct format.");
+      toast.error("Failed to fetch ideas. Make sure your n8n 'start' workflow is active.");
     } finally {
       setIsLoading(false);
     }
@@ -169,7 +170,7 @@ function IdeaGenerator() {
     setIsLoadingReferences(true);
     setReferenceTweets([]);
     try {
-      const response = await fetch('https://fahisk.app.n8n.cloud/webhook/second', {
+      const response = await fetch('https://fahis12.app.n8n.cloud/webhook/second', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({ category: selectedCategory, tone: selectedTone })
@@ -191,7 +192,7 @@ function IdeaGenerator() {
         setReferenceTweets([]);
       }
     } catch (error) {
-      alert("Failed to fetch reference tweets.");
+      toast.error("Failed to fetch reference tweets.");
       console.error("Fetch reference tweets error:", error);
       setReferenceTweets([]);
     } finally {
@@ -202,12 +203,12 @@ function IdeaGenerator() {
   const handleAddTweet = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!newTweetText.trim()) {
-      alert('Tweet text cannot be empty.');
+      toast.error('Tweet text cannot be empty.');
       return;
     }
     setIsSubmitting(true);
     try {
-      await fetch('https://fahisk.app.n8n.cloud/webhook/add', {
+      await fetch('https://fahis12.app.n8n.cloud/webhook/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -217,6 +218,7 @@ function IdeaGenerator() {
           Tags: newTweetTags
         }),
       });
+      toast.success('Reference tweet added!');
       setNewTweetText('');
       setNewTweetTags('');
       setNewTweetCategory('Educational');
@@ -225,7 +227,7 @@ function IdeaGenerator() {
       await fetchReferenceTweets();
     } catch (error) {
       console.error("Error adding tweet:", error);
-      alert("Failed to add the new reference tweet.");
+      toast.error("Failed to add the new reference tweet.");
     } finally {
       setIsSubmitting(false);
     }
@@ -235,7 +237,7 @@ function IdeaGenerator() {
     if (!editingRowId || !editedTweetData) return;
     setIsSubmitting(true);
     try {
-      await fetch('https://fahisk.app.n8n.cloud/webhook/update', {
+      await fetch('https://fahis12.app.n8n.cloud/webhook/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -243,12 +245,13 @@ function IdeaGenerator() {
           ...editedTweetData
         }),
       });
+      toast.success('Reference tweet updated!');
       setEditingRowId(null);
       setEditedTweetData(null);
       await fetchReferenceTweets();
     } catch (error) {
       console.error("Error updating tweet:", error);
-      alert("Failed to update the reference tweet.");
+      toast.error("Failed to update the reference tweet.");
     } finally {
       setIsSubmitting(false);
     }
@@ -258,27 +261,27 @@ function IdeaGenerator() {
     if (!window.confirm('Are you sure you want to delete this tweet?')) return;
     setIsSubmitting(true);
     try {
-      await fetch('https://fahisk.app.n8n.cloud/webhook/delete', {
+      await fetch('https://fahis12.app.n8n.cloud/webhook/delete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ row_number: rowNumber }),
       });
+      toast.error('Reference tweet deleted.');
       setReferenceTweets(prev => prev.filter(t => t.row_number !== rowNumber));
     } catch (error) {
       console.error("Error deleting tweet:", error);
-      alert("Failed to delete the reference tweet.");
+      toast.error("Failed to delete the reference tweet.");
     } finally {
       setIsSubmitting(false);
     }
   };
   
-  // --- NEW FUNCTION TO GET SUGGESTIONS (WITH ERROR HANDLING) ---
   const handleSuggestTweets = async () => {
     if (!suggestionTopic) return;
     setIsSuggesting(true);
     setSuggestedTweets([]);
     try {
-        const response = await fetch('https://fahisk.app.n8n.cloud/webhook/suggest', {
+        const response = await fetch('https://fahis12.app.n8n.cloud/webhook/suggest', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ topic: suggestionTopic })
@@ -292,21 +295,19 @@ function IdeaGenerator() {
         const responseText = data.text || (Array.isArray(data) && data[0]?.text) || '';
 
         if (responseText.trim().toUpperCase() === 'NO_RESULTS' || responseText.trim() === '') {
-            setSuggestedTweets(['No good results found for this topic. Please try being more specific.']);
+            // Leave array empty, UI will show message
         } else {
             const suggestionsArray = responseText.split('|||').map(s => s.trim()).filter(Boolean);
             setSuggestedTweets(suggestionsArray);
         }
     } catch (error) {
         console.error("Error suggesting tweets:", error);
-        alert("Failed to suggest new tweets. Please check your n8n 'suggest' workflow and browser console.");
-        setSuggestedTweets(['An error occurred. Please try again.']);
+        toast.error("Failed to suggest new tweets.");
     } finally {
         setIsSuggesting(false);
     }
   };
 
-  // --- NEW FUNCTION TO HANDLE ADDING A SUGGESTED TWEET ---
   const handleAddSuggestedTweet = (tweetText: string) => {
     setIsAddFormVisible(true);
     setNewTweetText(tweetText);
@@ -328,20 +329,27 @@ function IdeaGenerator() {
     setEditedTweetData(prev => ({ ...prev, [name]: value } as Partial<ReferenceTweet>));
   };
 
-  const handleCopyIdea = async (ideaText: string, index: number) => { try { await navigator.clipboard.writeText(ideaText); setCopiedIndex(index); setTimeout(() => setCopiedIndex(null), 1500); } catch { alert('Failed to copy!'); } };
+  const handleCopyIdea = async (ideaText: string, index: number) => { 
+    try { 
+      await navigator.clipboard.writeText(ideaText); 
+      toast.success('Copied to clipboard!');
+      setCopiedIndex(index); 
+      setTimeout(() => setCopiedIndex(null), 1500); 
+    } catch { 
+      toast.error('Failed to copy!'); 
+    } 
+  };
   const handleSuggestionClick = (ideaText: string) => { setFinalIdea(ideaText); };
-  const handleSelectTweetForGeneration = (tweet: ReferenceTweet) => { if (!selectedForGeneration.some(t => t.row_number === tweet.row_number)) { setSelectedForGeneration([...selectedForGeneration, tweet]); } };
-  const handleRemoveTweetFromGeneration = (tweetToRemove: ReferenceTweet) => { setSelectedForGeneration(selectedForGeneration.filter(t => t.row_number !== tweetToRemove.row_number)); };
 
   return (
     <div className="bg-slate-100 min-h-screen p-4 sm:p-8 font-sans">
+      <Toaster position="bottom-right" />
       <div className="max-w-7xl mx-auto">
         <main className="space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* --- LEFT COLUMN --- */}
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-lg flex flex-col gap-5">
               <h3 className="text-xl font-bold text-purple-700">1. Fetch Raw Ideas</h3>
-              {/* ... same as before ... */}
               <div className="flex flex-col sm:flex-row sm:space-x-4 items-end gap-4">
                 <div className="flex-1 w-full">
                   <label htmlFor="subreddit" className="text-sm font-medium text-slate-600 block mb-1">Subreddit</label>
@@ -371,7 +379,7 @@ function IdeaGenerator() {
                   </select>
                 </div>
               </div>
-              <button onClick={fetchIdeas} disabled={isLoading || !fetchSubreddit} className="w-full px-4 py-2 bg-purple-100 border border-purple-300 text-purple-700 font-semibold rounded-lg hover:bg-purple-200 disabled:opacity-50 disabled:cursor-not-allowed">
+              <button onClick={fetchIdeas} disabled={isLoading} className="w-full px-4 py-2 bg-purple-100 border border-purple-300 text-purple-700 font-semibold rounded-lg hover:bg-purple-200 disabled:opacity-50 disabled:cursor-not-allowed">
                 {isLoading ? 'Fetching…' : 'Fetch New Ideas'}
               </button>
               <div className="flex flex-col gap-2 mt-4">
@@ -428,14 +436,14 @@ function IdeaGenerator() {
               
               <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-3">
                 <h4 className="font-semibold text-slate-800">Generate 3 Variations</h4>
-                <p className="text-sm text-slate-500">Click the button below to generate 3 distinct variations of your base idea using the settings above.</p>
+                <p className="text-sm text-slate-500">The AI will automatically find the best reference tweets from your library to generate high-quality variations.</p>
                 <button onClick={handleSubmit} disabled={isGenerating || !finalIdea} className="w-full px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
                   {isGenerating ? 'Generating…' : 'Generate Final Variations'}
                 </button>
                 <hr />
                 <div className='text-center'>
                   <button onClick={() => setIsReferenceSectionVisible(true)} className="text-sm text-blue-600 font-semibold py-1 hover:underline">
-                    Optional: Use Reference Tweets for More Control
+                    Manage Reference Tweet Library
                   </button>
                 </div>
               </div>
@@ -458,19 +466,19 @@ function IdeaGenerator() {
           {isReferenceSectionVisible && (
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-lg flex flex-col gap-5">
               <div className="flex justify-between items-center">
-                <h3 className="text-xl font-bold text-purple-700">Optional: Reference Tweet Manager</h3>
+                <h3 className="text-xl font-bold text-purple-700">Reference Tweet Manager</h3>
                 <button onClick={() => setIsReferenceSectionVisible(false)} className="px-4 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300">Hide</button>
               </div>
-              <p className="text-sm text-slate-600 -mt-3">Select tweets here to give the AI better examples of the style you want. Your selections will be used when you click "Generate Final Variations".</p>
+              <p className="text-sm text-slate-600 -mt-3">This is your library of inspiration. The AI will automatically pick the best examples from here when you generate content.</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                 <div className="md:col-span-1">
-                  <label htmlFor="refCategory" className="text-sm font-medium text-slate-600 block mb-1">Category</label>
+                  <label htmlFor="refCategory" className="text-sm font-medium text-slate-600 block mb-1">Category Filter</label>
                   <select id="refCategory" className="w-full px-4 py-2 bg-slate-100 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300" value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)}>
                     <option>Educational</option><option>BuildInPublic</option><option>SuccessStory</option><option>Motivational</option>
                   </select>
                 </div>
                 <div className="md:col-span-1">
-                  <label htmlFor="refTone" className="text-sm font-medium text-slate-600 block mb-1">Tone / Style</label>
+                  <label htmlFor="refTone" className="text-sm font-medium text-slate-600 block mb-1">Tone / Style Filter</label>
                   <select id="refTone" className="w-full px-4 py-2 bg-slate-100 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300" value={selectedTone} onChange={e => setSelectedTone(e.target.value)}>
                     <option value="casual">Casual</option><option value="professional">Professional</option><option value="witty">Witty</option>
                   </select>
@@ -522,7 +530,6 @@ function IdeaGenerator() {
                 )}
               </div>
               
-              {/* --- NEW SUGGESTION UI --- */}
               <div className="mt-6 p-4 border-t-2 border-dashed border-slate-200">
                   <h4 className="text-lg font-semibold text-slate-800 mb-2">Find & Add New References by Topic</h4>
                   <div className="flex gap-2 items-center">
@@ -544,34 +551,31 @@ function IdeaGenerator() {
 
                   {isSuggesting && <p className="text-center text-slate-500 italic mt-4">Searching for inspiration...</p>}
 
+                  {!isSuggesting && suggestionTopic && suggestedTweets.length === 0 && (
+                      <div className="mt-4 p-3 bg-yellow-100 text-yellow-800 border border-yellow-200 rounded-lg text-center">
+                          No good results were found for this topic. Please try being more specific.
+                      </div>
+                  )}
+
                   {suggestedTweets.length > 0 && (
                       <div className="mt-4 space-y-2">
                           <h5 className="font-semibold text-slate-700">Suggestions:</h5>
                           {suggestedTweets.map((tweet, index) => (
                               <div key={index} className="p-3 bg-slate-100 rounded-lg flex justify-between items-center gap-4">
                                   <p className="text-slate-800 flex-grow">{tweet}</p>
-                                  {/* Conditionally render the button */}
-                                  {!tweet.includes('No good results found') && !tweet.includes('An error occurred') && (
-                                      <button 
-                                          onClick={() => handleAddSuggestedTweet(tweet)}
-                                          className="px-3 py-1 bg-green-500 text-white text-sm font-semibold rounded-lg hover:bg-green-600 ml-4 flex-shrink-0"
-                                      >
-                                          Add to Library
-                                      </button>
-                                  )}
+                                  <button 
+                                      onClick={() => handleAddSuggestedTweet(tweet)}
+                                      className="px-3 py-1 bg-green-500 text-white text-sm font-semibold rounded-lg hover:bg-green-600 ml-4 flex-shrink-0"
+                                  >
+                                      Add to Library
+                                  </button>
                               </div>
                           ))}
                       </div>
                   )}
               </div>
               
-              <div className="mt-4">
-                <h4 className="text-lg text-slate-600 mb-2">Tweets Selected for Generation</h4>
-                {selectedForGeneration.length > 0 ? (
-                  <ul className="space-y-2">{selectedForGeneration.map(t => (<li key={t.row_number} className="flex items-center justify-between p-2 bg-slate-100 border border-slate-200 rounded-md"><span className="text-slate-900 flex-1 truncate">{t.Reference_Tweet}</span><button onClick={() => handleRemoveTweetFromGeneration(t)} className="text-sm text-red-500 hover:text-red-600 ml-4">Remove</button></li>))}</ul>
-                ) : (<p className="text-slate-500 italic">Select at least one tweet from the list below to enable generation.</p>)}
-              </div>
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto mt-6">
                 <table className="min-w-full divide-y divide-slate-200">
                   <thead className="bg-purple-600"><tr>{['Id', 'Reference Tweet', 'Category', 'Tone/Style', 'Tags', 'Actions'].map(h => (<th key={h} className="px-4 py-2 text-left text-white uppercase text-xs font-semibold tracking-wide">{h}</th>))}</tr></thead>
                   <tbody className="divide-y divide-slate-200">
@@ -604,7 +608,6 @@ function IdeaGenerator() {
                                   </>
                               ) : (
                                   <>
-                                    <button onClick={() => handleSelectTweetForGeneration(t)} disabled={selectedForGeneration.some(x => x.row_number === t.row_number)} className="px-3 py-1 bg-purple-500 text-white text-sm rounded-lg hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">Select</button>
                                     <button onClick={() => handleStartEdit(t)} className="px-3 py-1 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600">Edit</button>
                                     <button onClick={() => handleDeleteTweet(t.row_number)} disabled={isSubmitting} className="px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 disabled:opacity-50">Delete</button>
                                   </>
