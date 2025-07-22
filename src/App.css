@@ -1,11 +1,11 @@
 /* --- Global Styles & Variables --- */
 :root {
-  /* Colors based on the screenshot */
-  --background-primary: #f9fafb; /* Main page background (Very light gray) */
-  --background-secondary: #ffffff; /* Card background */
-  --background-tertiary: #f3f4f6; /* Input/Secondary Button background (Slightly darker gray) */
-  --accent-primary: #a78bfa;      /* Purple for primary buttons */
+  --background-primary: #f9fafb;
+  --background-secondary: #ffffff;
+  --background-tertiary: #f3f4f6;
+  --accent-primary: #a78bfa;
   --accent-primary-hover: #8b5cf6;
+  --accent-secondary: #10b981;
   --text-primary: #111827;
   --text-secondary: #4b5563;
   --text-light: #6b7280;
@@ -14,6 +14,18 @@
   --success-color: #22c55e;
   --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-heading: 'Poppins', sans-serif;
+}
+
+/* Dark Mode */
+[data-theme="dark"] {
+  --background-primary: #1f2937;
+  --background-secondary: #374151;
+  --background-tertiary: #4b5563;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-light: #9ca3af;
+  --border-color: #4b5563;
 }
 
 body {
@@ -23,27 +35,26 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  /* Ensure the main container is centered horizontally - this is handled by .app-container max-width */
-  /* display: flex; justify-content: center; Removed as .app-container handles centering via margin */
 }
 
 /* --- App Layout --- */
 .app-container {
-  width: 100%; /* Take full width... */
-  max-width: 1200px; /* ...but stop at 1200px */
-  margin: 0 auto; /* Center the container */
-  padding: 3rem 2rem; /* Padding from the top and sides */
-  box-sizing: border-box; /* Include padding in width */
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  box-sizing: border-box;
 }
 
 .app-header {
   margin-bottom: 2.5rem;
-  text-align: center; /* Keep header centered as in App.jsx inline style */
+  text-align: center;
 }
 
 .app-header h1 {
   font-size: 2.5rem;
   font-weight: 800;
+  font-family: var(--font-heading);
   margin: 0 0 0.5rem 0;
 }
 
@@ -53,13 +64,12 @@ body {
   margin: 0;
 }
 
-/* Adjust header font sizes for smaller screens */
 @media (max-width: 600px) {
   .app-container {
-    padding: 2rem 1rem; /* Adjust padding */
+    padding: 2rem 1rem;
   }
   .app-header {
-     margin-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
   }
   .app-header h1 {
     font-size: 1.8rem;
@@ -69,79 +79,70 @@ body {
   }
 }
 
-
 /* --- Generator Layout --- */
-/* Added a main container for the IdeaGenerator content */
 .page-container {
   width: 100%;
-  /* min-height: 100vh; Removed, handled by body/overall content */
   box-sizing: border-box;
-  /* padding: 1rem 0.5rem; Removed, main padding is on .app-container */
-  /* background: var(--background-primary, #f9fafb); Removed, handled by body */
-  display: flex; /* Use flexbox for the page content */
-  flex-direction: column; /* Stack sections vertically by default */
-  gap: 2rem; /* Space between sections (generator container, variations, button) */
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
-
 
 .generator-container {
   display: flex;
-  flex-wrap: wrap; /* Allow columns to wrap to the next row */
-  gap: 2rem; /* Space between columns */
+  flex-wrap: wrap;
+  gap: 2rem;
   align-items: flex-start;
-  justify-content: center; /* Center columns if they don't fill the space */
-  /* max-width: 1200px; Removed, handled by app-container */
-  margin: 0 auto; /* Center within page-container */
+  justify-content: center;
+  margin: 0 auto;
 }
 
 .generator-column {
-  /* OLD: flex: 1; min-width: 1200px; margin-top: 70px; */
-  flex: 1 1 450px; /* Flex grow/shrink, basis 450px (allows 2 columns before wrapping) */
-  min-width: 300px; /* Minimum width before stacking */
-  max-width: 100%; /* Don't exceed container width */
+  flex: 1 1 450px;
+  min-width: 300px;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 2rem; /* Space between cards within a column */
-  /* margin-top: 70px; Removed, let gap handle vertical spacing */
+  gap: 2rem;
 }
 
-/* Responsive: Stack columns vertically on smaller screens */
 @media (max-width: 900px) {
   .generator-container {
-    flex-direction: column; /* Stack columns */
-    gap: 1.5rem; /* Adjust gap */
-    padding: 0 0.5rem; /* Add some horizontal padding */
-    align-items: stretch; /* Make columns fill width */
-    justify-content: flex-start; /* Align columns to start */
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 0 0.5rem;
+    align-items: stretch;
+    justify-content: flex-start;
   }
   .generator-column {
-    flex: 1 1 100%; /* Make columns take full width */
+    flex: 1 1 100%;
     width: 100%;
-    min-width: 0; /* Reset min-width */
-    gap: 1.5rem; /* Adjust gap within column */
+    min-width: 0;
+    gap: 1.5rem;
   }
-  /* Adjust card padding in IdeaGenerator.css instead */
-  /* .card { padding: 1rem; } */
 }
 
-/* Further improve for smaller mobile screens */
 @media (max-width: 600px) {
   .generator-container {
-    gap: 1rem; /* Reduce gap */
-    padding: 0 0.2rem; /* Reduce horizontal padding */
+    gap: 1rem;
+    padding: 0 0.2rem;
   }
   .generator-column {
-     gap: 1rem; /* Reduce gap within column */
+    gap: 1rem;
   }
-   /* Adjust card padding, font sizes, padding etc in IdeaGenerator.css */
 }
 
 /* --- Card Style --- */
-/* Card styles moved to IdeaGenerator.css */
+.bg-white {
+  background-color: var(--background-secondary);
+  transition: background-color 0.2s;
+}
 
+.border-slate-200 {
+  border-color: var(--border-color);
+}
 
 /* --- Form Styles --- */
-/* Form styles kept here for global consistency */
 .form-group,
 .form-group-row {
   display: flex;
@@ -151,39 +152,40 @@ body {
 
 .form-group-row {
   flex-direction: row;
-  align-items: flex-end; /* Align items to the bottom */
+  align-items: flex-end;
 }
+
 .form-group-row .form-group {
-    flex: 1; /* Allow nested form-groups to fill space */
+  flex: 1;
 }
 
 .form-label {
   font-weight: 500;
   font-size: 0.875rem;
   color: var(--text-secondary);
-  display: block; /* Ensure label takes its own line */
-  margin-bottom: 0.25rem; /* Space below label */
+  display: block;
+  margin-bottom: 0.25rem;
 }
 
 .form-input {
   width: 100%;
-  min-width: 0; /* Allow shrinking below content size */
+  min-width: 0;
   padding: 0.65rem 1rem;
   border: 1px solid var(--border-color);
   border-radius: 0.5rem;
   font-size: 1rem;
   font-family: inherit;
   background-color: var(--background-tertiary);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
   box-sizing: border-box;
-  color: var(--text-primary); /* Use variable for text color */
+  color: var(--text-primary);
 }
 
 .form-input:focus {
   outline: none;
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.3);
-  background-color: #fff;
+  background-color: var(--background-secondary);
 }
 
 textarea.form-input {
@@ -192,23 +194,22 @@ textarea.form-input {
   color: var(--text-primary);
 }
 
-/* Style select to look like other inputs */
 select.form-input {
-  appearance: none; /* Hide default arrow */
-  background-color: #ede9fe; /* Secondary button background */
-  border: 1.5px solid #a78bfa; /* Secondary button border */
-  color: #4b2997; /* Secondary button text color */
+  appearance: none;
+  background-color: #ede9fe;
+  border: 1.5px solid #a78bfa;
+  color: #4b2997;
   font-weight: 600;
   font-size: 1rem;
-  border-radius: 0.7rem; /* Match secondary button border-radius */
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); /* Custom arrow */
+  border-radius: 0.7rem;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
   background-position: right 0.9rem center;
   background-repeat: no-repeat;
   background-size: 1.5em 1.5em;
-  padding-right: 2.5rem; /* Make space for the arrow */
+  padding-right: 2.5rem;
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-  color: #111; /* Ensure text is visible */
 }
+
 select.form-input:focus {
   outline: none;
   border-color: #7c3aed;
@@ -218,7 +219,6 @@ select.form-input:focus {
 }
 
 /* --- Button Styles --- */
-/* Button styles kept here for global consistency */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -229,8 +229,12 @@ select.form-input:focus {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
   text-decoration: none;
+}
+
+.btn:hover {
+  transform: scale(1.02);
 }
 
 .btn:disabled {
@@ -241,8 +245,9 @@ select.form-input:focus {
 .btn-primary {
   background-color: var(--accent-primary);
   color: white;
-  width: 100%; /* Primary button often takes full width */
+  width: 100%;
 }
+
 .btn-primary:not(:disabled):hover {
   background-color: var(--accent-primary-hover);
 }
@@ -253,46 +258,102 @@ select.form-input:focus {
   border: 1.5px solid #a78bfa;
   font-weight: 600;
   border-radius: 0.7rem;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
+
 .btn-secondary:not(:disabled):hover {
   background-color: #d1c4f6;
   border-color: #7c3aed;
   color: #3b0764;
 }
 
-.btn-link { background: none; border: none; padding: 0.25rem 0.5rem; cursor: pointer; color: var(--text-light); }
-.btn-link:hover { color: var(--text-primary); }
-.btn-link.danger { color: var(--danger-color); }
-
-
-/* --- IdeaGenerator Specific Styles --- */
-/* (Styles for .ideas-list, .suggestion-card, .copy-btn, etc. should be in IdeaGenerator.css) */
-
-
-/* --- Reference Tweets Section --- */
-/* (Styles for .reference-tweet-controls, .reference-tweet-box, etc. should be in IdeaGenerator.css) */
-
-
-/* --- Table Styles & Responsive Adjustments --- */
-/* Base table styles moved to IdeaGenerator.css */
-
-.table-container {
-  overflow-x: auto; /* Adds horizontal scroll for small screens */
-  /* margin: 20px 0; Removed, let card gap handle margin */
-  border-radius: 8px; /* Match card border-radius? Or maybe keep smaller? */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* Lighter shadow */
+.btn-link {
+  background: none;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  color: var(--text-light);
 }
 
+.btn-link:hover {
+  color: var(--text-primary);
+}
 
-/* Responsive adjustments for smaller screens (Mobile stacking) */
+.btn-link.danger {
+  color: var(--danger-color);
+}
+
+/* --- IdeaGenerator Specific Styles --- */
+.suggestion-card {
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.suggestion-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-card.selected {
+  border-color: var(--accent-primary);
+  background: rgba(167, 139, 250, 0.1);
+}
+
+.variation-card {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  background: var(--background-secondary);
+  z-index: 10;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* --- Progress Stepper --- */
+.progress-stepper {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.progress-step {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem;
+  background: var(--background-tertiary);
+  border-radius: 0.5rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.progress-step.active {
+  background: var(--accent-primary);
+  color: white;
+}
+
+/* --- Table Styles --- */
+.table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.reference-tweet-table th {
+  background-color: var(--accent-primary);
+  color: white;
+}
+
 @media screen and (max-width: 500px) {
-  /* Hide original table header */
   .reference-tweet-table thead {
     display: none;
   }
 
-  /* Make table elements behave like block elements */
   .reference-tweet-table,
   .reference-tweet-table tbody,
   .reference-tweet-table tr,
@@ -302,7 +363,6 @@ select.form-input:focus {
     box-sizing: border-box;
   }
 
-  /* Add margin/border to rows to create card effect */
   .reference-tweet-table tr {
     margin-bottom: 1rem;
     border: 1px solid var(--border-color);
@@ -312,23 +372,20 @@ select.form-input:focus {
     padding: 0.5rem 0;
   }
 
-   /* Style individual cells for a label-value layout */
   .reference-tweet-table td {
-    padding: 0.8rem 1rem 0.8rem 40%; /* Give label 40% of space */
+    padding: 0.8rem 1rem 0.8rem 40%;
     position: relative;
     border-bottom: 1px dashed var(--border-color);
-    min-height: 44px; /* Ensure a decent tap height */
+    min-height: 44px;
     display: flex;
     align-items: center;
-    justify-content: flex-end; /* Default alignment is right */
+    justify-content: flex-end;
   }
 
-  /* Remove border for the last cell in a row */
   .reference-tweet-table tr td:last-child {
     border-bottom: none;
   }
 
-  /* Pseudo-element for the label */
   .reference-tweet-table td::before {
     content: attr(data-label);
     position: absolute;
@@ -346,30 +403,35 @@ select.form-input:focus {
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  
-  /* --- Special override for the main tweet content --- */
+
   .reference-tweet-table td[data-label="Reference Tweet"] {
-    display: block; /* Override the flex behavior */
-    padding: 0.8rem 1rem; /* Reset padding to be even on all sides */
-    text-align: left; /* Align the text to the left */
-    word-break: break-word; /* Allow long words to wrap correctly */
+    display: block;
+    padding: 0.8rem 1rem;
+    text-align: left;
+    word-break: break-word;
     -webkit-hyphens: auto;
     -ms-hyphens: auto;
     hyphens: auto;
-    height: auto; /* Allow the cell to grow with its content */
-    min-height: 0; /* Reset the minimum height */
+    height: auto;
+    min-height: 0;
   }
-  
-  /* Hide the redundant "Reference Tweet" label for this specific cell */
+
   .reference-tweet-table td[data-label="Reference Tweet"]::before {
     display: none;
   }
 }
 
+/* --- Mobile Optimizations --- */
+@media (max-width: 600px) {
+  .generation-settings .grid {
+    grid-template-columns: 1fr;
+  }
 
-/* --- Generated Variations Output --- */
-/* (Styles for .variations-output, .variation-card should be in IdeaGenerator.css) */
-
+  .btn {
+    padding: 0.8rem 1.2rem;
+    font-size: 1.1rem;
+  }
+}
 
 .error-text {
   color: var(--danger-color);
@@ -377,21 +439,19 @@ select.form-input:focus {
   margin-top: 0.25rem;
 }
 
-/* Global button style for the "Generate Tweets" button at the bottom */
 .generate-button-container {
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-top: 2rem; /* Space above the button */
-  margin-bottom: 2rem; /* Space below the button */
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 }
 
-/* Adjust button size on smaller screens */
 @media (max-width: 600px) {
   .generate-button-container .btn-primary {
-    min-width: unset; /* Remove explicit min-width */
-    width: 80%; /* Make it take 80% width */
-    font-size: 1rem; /* Adjust font size */
-    padding: 0.65rem 1rem; /* Adjust padding */
+    min-width: unset;
+    width: 80%;
+    font-size: 1rem;
+    padding: 0.65rem 1rem;
   }
 }
