@@ -30,25 +30,34 @@ import React, { useState } from 'react';
 import Layout from './Layout';
 
 import Dashboard from './Dashboard';
-import AllIdeas from './components/AllIdeas';
 import AddNew from './components/AddNew';
 import SuggestedNew from './components/SuggestedNew';
 import Settings from './components/Settings';
 
+
+const PAGES = {
+  DASHBOARD: 'DASHBOARD',
+  ALL_IDEAS: 'ALL IDEAS',
+  ADD_NEW: 'ADD NEW',
+  SUGGESTED_NEW: 'SUGGESTED NEW',
+  SETTINGS: 'SETTINGS',
+} ;
+
+// type PageName = typeof PAGES[keyof typeof PAGES];
+
 function App() {
-  const [activePage, setActivePage] = useState('DASHBOARD');
+  const [activePage, setActivePage] = useState(PAGES.DASHBOARD);
 
   const renderActivePage = () => {
     switch (activePage) {
-      case 'DASHBOARD':
+      case PAGES.DASHBOARD:
         return <Dashboard />;
-      case 'ALL IDEAS':
-        return <AllIdeas />;
-      case 'ADD NEW':
+     
+      case PAGES.ADD_NEW:
         return <AddNew />;
-      case 'SUGGESTED NEW':
+      case PAGES.SUGGESTED_NEW:
         return <SuggestedNew />;
-      case 'SETTINGS':
+      case PAGES.SETTINGS:
         return <Settings />;
       default:
         return <Dashboard />;

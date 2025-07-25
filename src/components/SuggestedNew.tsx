@@ -39,11 +39,11 @@ function SuggestedNew() {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-      <h2 className="text-3xl font-bold text-gray-800 mb-4">Suggested New Ideas</h2>
+    <div className=" p-6">
+      <h2 className="text-3xl font-bold text-white mb-4">Suggested New Ideas</h2>
       <p className="text-gray-500 mt-1 mb-6">This page will display AI-suggested ideas based on trends.</p>
-      <div className="p-4 bg-gray-50 border-2 border-dashed border-gray-200 rounded-lg mb-4">
-        <h4 className="font-semibold mb-3 text-gray-800">Suggest New Tweets by Topic</h4>
+      <div className="p-4 mb-4">
+        <h4 className="font-semibold mb-3 text-white">Suggest New Tweets by Topic</h4>
         <div className="space-y-4">
           <div className="flex gap-4 items-end">
             <div className="flex-grow">
@@ -53,7 +53,7 @@ function SuggestedNew() {
                 value={topic}
                 onChange={e => setTopic(e.target.value)}
                 placeholder="e.g., AI startups"
-                className="w-full p-2 border border-gray-300 rounded-lg"
+                className="w-full p-2  rounded-lg bg-[#2a323c] placeholder-[#4f5761]"
               />
             </div>
             <button
@@ -72,7 +72,7 @@ function SuggestedNew() {
                 value={hashtags}
                 onChange={e => setHashtags(e.target.value)}
                 placeholder="e.g., #AI, #Tech"
-                className="w-full p-2 border border-gray-300 rounded-lg"
+                className="w-full p-2 rounded-lg bg-[#2a323c] placeholder-[#4f5761]"
               />
             </div>
             <div>
@@ -82,7 +82,7 @@ function SuggestedNew() {
                 value={accounts}
                 onChange={e => setAccounts(e.target.value)}
                 placeholder="e.g., @user1, @user2"
-                className="w-full p-2 border border-gray-300 rounded-lg"
+                className="w-full p-2 rounded-lg bg-[#2a323c] placeholder-[#4f5761]"
               />
             </div>
           </div>
